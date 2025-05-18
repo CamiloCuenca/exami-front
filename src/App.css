@@ -5,29 +5,88 @@
   --color-primary: #6366f1;     /* Índigo - Botones, elementos interactivos principales */
   --color-secondary: #4f46e5;   /* Índigo oscuro - Elementos secundarios, texto destacado */
   --color-accent: #7c3aed;      /* Púrpura - Resaltar acciones importantes */
+  --color-indigo: #6366f1;      /* Índigo estándar */
+  --color-purple: #8b5cf6;      /* Púrpura estándar */
 
   /* Colores complementarios */
   --color-indigo-100: #e0e7ff;  /* Fondo claro índigo */
+  --color-indigo-200: #c7d2fe;  /* Bordes claros índigo */
+  --color-indigo-400: #818cf8;  /* Elementos medios índigo */
+  --color-indigo-600: #4f46e5;  /* Elementos destacados índigo */
+  
   --color-purple-100: #f3e8ff;  /* Fondo claro púrpura */
+  --color-purple-200: #e9d5ff;  /* Bordes claros púrpura */
+  --color-purple-400: #a78bfa;  /* Elementos medios púrpura */
+  --color-purple-600: #7c3aed;  /* Elementos destacados púrpura */
   
   /* Gradientes preestablecidos */
   --gradient-primary: linear-gradient(to right, #6366f1, #8b5cf6); /* Índigo a púrpura */
   --gradient-header: linear-gradient(to right, #7c3aed, #4f46e5, #6366f1); /* Púrpura-índigo-índigo */
+  --gradient-button: linear-gradient(to right, #4f46e5, #7c3aed); /* Índigo a púrpura - para botones */
+  --gradient-card: linear-gradient(135deg, #e0e7ff, #f3e8ff); /* Fondo sutil para tarjetas */
   
   /* Colores neutrales */
   --color-white: #FFFFFF;       /* Blanco - Fondos y limpieza visual */
-  --color-gray-light: #F5F5F5;  /* Gris Claro - Fondos secundarios, bordes */
+  --color-black: #000000;       /* Negro - Texto principal en ciertos casos */
   --color-gray-50: #f9fafb;     /* Gris muy claro - Fondos de inputs */
+  --color-gray-100: #f3f4f6;    /* Gris muy claro - Fondos secundarios */
   --color-gray-200: #e5e7eb;    /* Gris para bordes */
+  --color-gray-300: #d1d5db;    /* Gris para separadores */
   --color-gray-400: #9ca3af;    /* Gris medio para iconos y texto secundario */
-  --color-gray-700: #374151;    /* Gris oscuro para texto */
+  --color-gray-500: #6b7280;    /* Gris medio - texto deshabilitado */
+  --color-gray-600: #4b5563;    /* Gris oscuro - texto secundario */
+  --color-gray-700: #374151;    /* Gris oscuro para texto principal */
+  --color-gray-800: #1f2937;    /* Gris muy oscuro - titulares */
+  --color-gray-900: #111827;    /* Gris casi negro - énfasis especial */
+  
   --color-text-primary: #1e293b; /* Color principal para texto */
   --color-text-secondary: #4338ca; /* Color para texto destacado - índigo oscuro */
+  --color-text-light: #64748b; /* Color para texto secundario más claro */
+  --color-text-disabled: #9ca3af; /* Color para texto deshabilitado */
   
   /* Colores de feedback */
   --color-error: #ef4444;       /* Rojo para errores */
+  --color-error-light: #fee2e2; /* Fondo rojo claro para errores */
+  --color-error-border: #f87171; /* Borde rojo para errores */
+  --color-error-dark: #b91c1c;  /* Rojo oscuro para texto de error */
+  
   --color-warning: #f59e0b;     /* Amarillo para advertencias */
+  --color-warning-light: #fef3c7; /* Fondo amarillo claro para advertencias */
+  --color-warning-border: #fbbf24; /* Borde amarillo para advertencias */
+  --color-warning-dark: #d97706; /* Amarillo oscuro para texto de advertencia */
+  
   --color-success: #10b981;     /* Verde para éxito */
+  --color-success-light: #d1fae5; /* Fondo verde claro para éxito */
+  --color-success-border: #34d399; /* Borde verde para éxito */
+  --color-success-dark: #059669; /* Verde oscuro para texto de éxito */
+  
+  --color-info: #3b82f6;        /* Azul para información */
+  --color-info-light: #dbeafe;  /* Fondo azul claro para información */
+  --color-info-border: #60a5fa; /* Borde azul para información */
+  --color-info-dark: #1d4ed8;   /* Azul oscuro para texto de información */
+  
+  /* Sombras personalizadas */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Sombras con color */
+  --shadow-primary: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+  --shadow-accent: 0 4px 14px 0 rgba(124, 58, 237, 0.39);
+  
+  /* Bordes redondeados */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+  
+  /* Transiciones */
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  --transition-slow: 500ms;
 }
 
 
@@ -35,10 +94,10 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif; /* Cambia por la fuente que uses */
+  font-family: 'Inter', system-ui, sans-serif; /* Cambia por la fuente que uses */
   box-sizing: border-box;
   scroll-behavior: smooth; /* Suaviza el scroll para una mejor UX */
-  background-color: var(--color-gray-light); /* Color de fondo predeterminado */
+  background-color: var(--color-gray-50); /* Color de fondo predeterminado */
   color: var(--color-text-primary); /* Color de texto predeterminado */
   height: 100%;
   display: flex;
@@ -46,7 +105,25 @@ html, body {
   justify-content: space-between; /* Esto separa el header y el footer */
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 /* Clases de utilidad para botones y elementos comunes */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  text-align: center;
+}
+
 .btn-primary {
   background-image: var(--gradient-primary);
   color: var(--color-white);
@@ -54,7 +131,7 @@ html, body {
   border-radius: 0.5rem;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-primary:hover {
@@ -66,11 +143,80 @@ html, body {
   transform: translateY(0);
 }
 
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid var(--color-indigo-400);
+  color: var(--color-indigo-600);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-indigo-50);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--color-gray-200);
+  color: var(--color-gray-700);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-600);
+}
+
+/* Botones de tamaño */
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1.125rem;
+}
+
+/* Botones de estado */
+.btn-success {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.btn-warning {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.btn-error {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.btn-info {
+  background-color: var(--color-info);
+  color: white;
+}
+
+/* Botón deshabilitado */
+.btn-disabled, .btn[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Estilos para tarjetas */
 .card {
   background-color: var(--color-white);
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   padding: 1.5rem;
   position: relative;
   overflow: hidden;
@@ -85,10 +231,139 @@ html, body {
   background-image: var(--gradient-header);
 }
 
+.card-transparent {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.card-bordered {
+  border: 1px solid var(--color-gray-200);
+}
+
+.card-compact {
+  padding: 1rem;
+}
+
 /* Fondos con gradientes */
 .bg-gradient-primary {
   background-image: linear-gradient(to bottom right, var(--color-indigo-100), var(--color-purple-100));
 }
+
+.bg-gradient-accent {
+  background-image: linear-gradient(to bottom right, var(--color-purple-100), var(--color-indigo-100));
+}
+
+.bg-gradient-header {
+  background-image: var(--gradient-header);
+}
+
+.bg-gradient-button {
+  background-image: var(--gradient-button);
+}
+
+/* Clases para alertas y notificaciones */
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+  margin-bottom: 1rem;
+}
+
+.alert-error {
+  background-color: var(--color-error-light);
+  border-left-color: var(--color-error);
+  color: var(--color-error-dark);
+}
+
+.alert-warning {
+  background-color: var(--color-warning-light);
+  border-left-color: var(--color-warning);
+  color: var(--color-warning-dark);
+}
+
+.alert-success {
+  background-color: var(--color-success-light);
+  border-left-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.alert-info {
+  background-color: var(--color-info-light);
+  border-left-color: var(--color-info);
+  color: var(--color-info-dark);
+}
+
+/* Clases para texto e input */
+.input {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  width: 100%;
+  background-color: var(--color-gray-50);
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.input-error {
+  border-color: var(--color-error-border);
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+/* Utilidades de texto */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.text-accent {
+  color: var(--color-accent);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.text-info {
+  color: var(--color-info);
+}
+
+.text-muted {
+  color: var(--color-gray-500);
+}
+
+/* Clases de sombras reutilizables */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-primary { box-shadow: var(--shadow-primary); }
+.shadow-accent { box-shadow: var(--shadow-accent); }
 
 /* Animaciones */
 @keyframes fadeIn {
@@ -96,6 +371,68 @@ html, body {
   100% { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideInFromRight {
+  0% { transform: translateX(30px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideInFromRight 0.5s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Espaciado de página cuando se usa navbar fijo */
+.with-navbar-spacing {
+  padding-top: 4rem; /* Ajustar según la altura del navbar */
+}
+
+@media (min-width: 768px) {
+  .with-navbar-spacing {
+    padding-top: 5rem; /* Mayor espacio en pantallas más grandes */
+  }
+}
+
+/* Utilidades de borde */
+.border-primary { border-color: var(--color-primary); }
+.border-secondary { border-color: var(--color-secondary); }
+.border-accent { border-color: var(--color-accent); }
+.border-error { border-color: var(--color-error); }
+.border-warning { border-color: var(--color-warning); }
+.border-success { border-color: var(--color-success); }
+.border-info { border-color: var(--color-info); }
+
+/* Utilidades de hover */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-shadow {
+  transition: box-shadow 0.3s ease;
+}
+.hover-shadow:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
 }

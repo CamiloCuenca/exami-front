@@ -2,18 +2,18 @@ import api from "../services/api";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-
-// Constantes para códigos de resultado (alineados con el backend)
-const LOGIN_EXITOSO = 1;
-const LOGIN_USUARIO_NO_ENCONTRADO = -1;
-const LOGIN_CUENTA_INACTIVA = -2;
-const LOGIN_CUENTA_BLOQUEADA = -3;
-const LOGIN_CONTRASENA_INCORRECTA = -4;
-const LOGIN_ERROR_INESPERADO = -99;
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+    LOGIN_EXITOSO, 
+    LOGIN_USUARIO_NO_ENCONTRADO, 
+    LOGIN_CUENTA_INACTIVA, 
+    LOGIN_CUENTA_BLOQUEADA, 
+    LOGIN_CONTRASENA_INCORRECTA, 
+    LOGIN_ERROR_INESPERADO 
+} from "../constants/auth";
 
 // Constante para controlar el modo de depuración - asegurarnos que nunca se muestre en producción
-const IS_DEV_MODE = process.env.NODE_ENV === 'development';
+const IS_DEV_MODE = import.meta.env.MODE === 'development';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -21,6 +21,8 @@ export default function Login() {
     const [debugInfo, setDebugInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showDebug, setShowDebug] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [formError, setFormError] = useState(null);
 
     // Mostrar información de debug si estamos en modo desarrollo
     useEffect(() => {
@@ -50,19 +52,22 @@ export default function Login() {
             intentosRestantes = Math.max(0, 3 - nuevosIntentos);
         }
         
+        const progreso = ((3-intentosRestantes)/3)*100;
+        
         Swal.fire({
             icon: 'warning',
             title: 'Contraseña incorrecta',
             html: `
                 <div class="flex flex-col items-center">
                     <p class="mb-3 text-md">Contraseña no válida</p>
-                    <div class="w-full bg-gray-200 rounded-full h-4 mb-2 dark:bg-gray-700">
-                        <div class="bg-red-600 h-4 rounded-full" style="width: ${(3-intentosRestantes)/3*100}%"></div>
+                    <div class="w-full bg-gray-200 rounded-full h-4 mb-2 dark:bg-gray-700 overflow-hidden">
+                        <div class="h-4 rounded-full transition-all duration-700 animate-pulse" 
+                            style="width: ${progreso}%; background-image: linear-gradient(to right, #ef4444, #b91c1c);"></div>
                     </div>
                     <p class="text-red-500 font-bold text-md">Te quedan ${intentosRestantes} ${intentosRestantes === 1 ? 'intento' : 'intentos'} antes de que tu cuenta sea bloqueada</p>
                 </div>
             `,
-            confirmButtonColor: '#6366f1',
+            confirmButtonColor: '#7c3aed',
             background: '#fff',
             showClass: {
                 popup: 'animate__animated animate__fadeInDown'
@@ -75,10 +80,18 @@ export default function Login() {
 
     const handleLogin = async (event) => {
         event.preventDefault();
+        setFormError(null);
         setIsLoading(true);
         const form = event.target;
         const email = form.email.value;
         const contrasena = form.contrasena.value;
+
+        // Validación simple del formulario
+        if (!email || !email.includes('@')) {
+            setFormError('Por favor ingresa un email válido');
+            setIsLoading(false);
+            return;
+        }
 
         try {
             const response = await api.post("/auth/login", { email, contrasena });
@@ -128,7 +141,7 @@ export default function Login() {
                             icon: 'error',
                             title: 'Usuario no encontrado',
                             text: response.data.mensajeResultado || 'El correo electrónico no está registrado en nuestro sistema',
-                            confirmButtonColor: '#6366f1',
+                            confirmButtonColor: '#7c3aed',
                             background: '#fff'
                         });
                         break;
@@ -138,7 +151,7 @@ export default function Login() {
                             icon: 'warning',
                             title: 'Cuenta inactiva',
                             text: response.data.mensajeResultado || 'Tu cuenta se encuentra inactiva. Contacta a soporte para más información',
-                            confirmButtonColor: '#6366f1',
+                            confirmButtonColor: '#7c3aed',
                             background: '#fff'
                         });
                         break;
@@ -154,7 +167,7 @@ export default function Login() {
                                 </div>
                             `,
                             footer: '<a href="/recuperar-cuenta" class="text-indigo-600 hover:text-indigo-800">¿Necesitas recuperar acceso a tu cuenta?</a>',
-                            confirmButtonColor: '#6366f1',
+                            confirmButtonColor: '#7c3aed',
                             background: '#fff',
                             customClass: {
                                 container: 'my-swal'
@@ -180,19 +193,22 @@ export default function Login() {
                         }
                         
                         if (intentosRestantes > 0) {
+                            const progreso = ((3-intentosRestantes)/3)*100;
+                            
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Contraseña incorrecta',
                                 html: `
                                     <div class="flex flex-col items-center">
                                         <p class="mb-3 text-md">Contraseña no válida</p>
-                                        <div class="w-full bg-gray-200 rounded-full h-4 mb-2 dark:bg-gray-700">
-                                            <div class="bg-red-600 h-4 rounded-full" style="width: ${(3-intentosRestantes)/3*100}%"></div>
+                                        <div class="w-full bg-gray-200 rounded-full h-4 mb-2 dark:bg-gray-700 overflow-hidden">
+                                            <div class="h-4 rounded-full transition-all duration-700 animate-pulse" 
+                                                style="width: ${progreso}%; background-image: linear-gradient(to right, #ef4444, #b91c1c);"></div>
                                         </div>
                                         <p class="text-red-500 font-bold text-md">Te quedan ${intentosRestantes} ${intentosRestantes === 1 ? 'intento' : 'intentos'} antes de que tu cuenta sea bloqueada</p>
                                     </div>
                                 `,
-                                confirmButtonColor: '#6366f1',
+                                confirmButtonColor: '#7c3aed',
                                 background: '#fff',
                                 showClass: {
                                     popup: 'animate__animated animate__fadeInDown'
@@ -206,7 +222,7 @@ export default function Login() {
                                 icon: 'error',
                                 title: '¡Último intento!',
                                 text: 'Contraseña incorrecta. Tu cuenta será bloqueada después de este intento.',
-                                confirmButtonColor: '#6366f1',
+                                confirmButtonColor: '#7c3aed',
                                 background: '#fff',
                                 showClass: {
                                     popup: 'animate__animated animate__shakeX'
@@ -220,7 +236,7 @@ export default function Login() {
                             icon: 'error',
                             title: 'Error del sistema',
                             text: response.data.mensajeResultado || "Error inesperado al iniciar sesión",
-                            confirmButtonColor: '#6366f1',
+                            confirmButtonColor: '#7c3aed',
                             background: '#fff'
                         });
                         break;
@@ -230,7 +246,7 @@ export default function Login() {
                             icon: 'error',
                             title: 'Error',
                             text: response.data.mensajeResultado || "Error desconocido al iniciar sesión",
-                            confirmButtonColor: '#6366f1',
+                            confirmButtonColor: '#7c3aed',
                             background: '#fff'
                         });
                 }
@@ -266,7 +282,7 @@ export default function Login() {
                             </div>
                         `,
                         footer: '<a href="/recuperar-cuenta" class="text-indigo-600 hover:text-indigo-800">¿Necesitas recuperar acceso a tu cuenta?</a>',
-                        confirmButtonColor: '#6366f1',
+                        confirmButtonColor: '#7c3aed',
                         background: '#fff'
                     });
                 } else {
@@ -275,7 +291,7 @@ export default function Login() {
                         icon: 'error',
                         title: 'Error de autenticación',
                         text: errorData.mensajeResultado || 'Ocurrió un error al intentar iniciar sesión',
-                        confirmButtonColor: '#6366f1',
+                        confirmButtonColor: '#7c3aed',
                         background: '#fff'
                     });
                 }
@@ -285,7 +301,7 @@ export default function Login() {
                     icon: 'error',
                     title: 'Error de conexión',
                     text: 'No se pudo conectar al servidor. Verifica tu conexión a internet.',
-                    confirmButtonColor: '#6366f1',
+                    confirmButtonColor: '#7c3aed',
                     background: '#fff'
                 });
             }
@@ -306,6 +322,11 @@ export default function Login() {
         }
     };
 
+    // Función para alternar la visualización de la contraseña
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
             <motion.div 
@@ -314,15 +335,40 @@ export default function Login() {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 pt-12 relative overflow-hidden"
             >
-                {/* Elemento decorativo */}
+                {/* Elemento decorativo superior */}
                 <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-500"></div>
                 
-                {/* Círculos decorativos */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-indigo-100 opacity-50"></div>
-                <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-purple-100 opacity-50"></div>
+                {/* Círculos decorativos con animación */}
+                <motion.div 
+                    animate={{ 
+                        scale: [1, 1.05, 1],
+                        opacity: [0.5, 0.6, 0.5]
+                    }}
+                    transition={{ 
+                        repeat: Infinity, 
+                        duration: 5,
+                        ease: "easeInOut"
+                    }}
+                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-indigo-100 opacity-50"
+                />
+                <motion.div 
+                    animate={{ 
+                        scale: [1, 1.05, 1],
+                        opacity: [0.5, 0.6, 0.5]
+                    }}
+                    transition={{ 
+                        repeat: Infinity, 
+                        duration: 6,
+                        ease: "easeInOut",
+                        delay: 0.5
+                    }}
+                    className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-purple-100 opacity-50"
+                />
                 
-                {/* Flecha para regresar al home */}
-                <button
+                {/* Flecha para regresar al home con animación */}
+                <motion.button
+                    whileHover={{ scale: 1.1, x: -3 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigate("/")}
                     className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none z-10"
                     aria-label="Regresar al inicio"
@@ -334,27 +380,44 @@ export default function Login() {
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                         strokeWidth={2}
-                        style={{ color: "#6366f1" }}
+                        style={{ color: "#7c3aed" }}
                     >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
-                </button>
+                </motion.button>
 
-                {/* Logo o icono */}
-                <div className="flex justify-center mb-6">
-                    <div className="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                {/* Logo con animación */}
+                <motion.div 
+                    className="flex justify-center mb-6"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                >
+                    <motion.div 
+                        className="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center"
+                        whileHover={{ scale: 1.05, boxShadow: "0px 5px 15px rgba(124, 58, 237, 0.4)" }}
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
-                <h1 className="text-3xl font-bold text-center mb-8 text-indigo-800 relative z-10">
+                <motion.h1 
+                    className="text-3xl font-bold text-center mb-8 text-indigo-800 relative z-10"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                >
                     Iniciar Sesión
-                </h1>
+                </motion.h1>
 
                 <form onSubmit={handleLogin} className="space-y-6 relative z-10">
-                    <div>
+                    <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.3 }}
+                    >
                         <label
                             htmlFor="email"
                             className="block text-sm font-semibold text-indigo-800 mb-1"
@@ -376,8 +439,13 @@ export default function Login() {
                                 placeholder="ejemplo@correo.com"
                             />
                         </div>
-                    </div>
-                    <div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.4 }}
+                    >
                         <label
                             htmlFor="contrasena"
                             className="block text-sm font-semibold text-indigo-800 mb-1"
@@ -391,17 +459,50 @@ export default function Login() {
                                 </svg>
                             </div>
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 id="contrasena"
                                 name="contrasena"
                                 required
                                 className="w-full pl-10 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all"
                                 placeholder="Tu contraseña"
                             />
+                            <div 
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" 
+                                onClick={togglePasswordVisibility}
+                            >
+                                {showPassword ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7A9.97 9.97 0 014.02 8.971m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </motion.div>
+
+                    {/* Animación para errores del formulario */}
+                    <AnimatePresence>
+                        {formError && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded"
+                            >
+                                {formError}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <motion.button
-                        whileHover={{ scale: 1.03 }}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.5 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0px 5px 15px rgba(124, 58, 237, 0.4)" }}
                         whileTap={{ scale: 0.97 }}
                         type="submit"
                         disabled={isLoading}
@@ -409,23 +510,37 @@ export default function Login() {
                     >
                         {isLoading ? (
                             <span className="flex items-center justify-center">
-                                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <motion.svg 
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    className="-ml-1 mr-2 h-5 w-5 text-white" 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    fill="none" 
+                                    viewBox="0 0 24 24"
+                                >
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                                </motion.svg>
                                 Procesando...
                             </span>
                         ) : "Ingresar"}
                     </motion.button>
                 </form>
-                <div className="mt-6 text-center space-y-2 relative z-10">
-                    <a
+
+                <motion.div 
+                    className="mt-6 text-center space-y-2 relative z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                >
+                    <motion.a
+                        whileHover={{ scale: 1.05, x: 3 }}
                         href="#"
-                        className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
+                        className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors block"
                     >
                         ¿Olvidaste tu contraseña?
-                    </a>
-                    <div>
+                    </motion.a>
+                    <motion.div whileHover={{ scale: 1.05, x: 3 }}>
                         <a
                             href="/recuperar-cuenta" 
                             onClick={handleRecuperarCuenta}
@@ -433,8 +548,8 @@ export default function Login() {
                         >
                             ¿Cuenta bloqueada? Recuperar acceso
                         </a>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
                 
                 {/* Solo en modo desarrollo: botón secreto para activar el debug */}
                 {IS_DEV_MODE && (
@@ -447,7 +562,11 @@ export default function Login() {
                 
                 {/* Área de diagnóstico - SOLO visible en modo desarrollo Y cuando se activa explícitamente */}
                 {IS_DEV_MODE && showDebug && debugInfo && (
-                    <div className="mt-6 p-4 bg-gray-100 rounded-lg text-xs text-left">
+                    <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-6 p-4 bg-gray-100 rounded-lg text-xs text-left"
+                    >
                         <div className="flex justify-between items-center">
                             <h4 className="font-bold mb-2">Diagnóstico (Solo DEV)</h4>
                             {debugInfo.codigoResultado === LOGIN_CONTRASENA_INCORRECTA && (
@@ -460,7 +579,7 @@ export default function Login() {
                             )}
                         </div>
                         <pre className="overflow-auto max-h-40">{JSON.stringify(debugInfo, null, 2)}</pre>
-                    </div>
+                    </motion.div>
                 )}
             </motion.div>
         </div>

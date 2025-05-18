@@ -3,8 +3,11 @@ import Home from './pages/Home'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from './components/login';
+
 import Examenes from './pages/examenes';
 
+
+import Registro from './components/registro';
 
 
 function App() {
@@ -18,6 +21,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/examenes" element={<Examenes />} />
+        <Route path="/registro" element={<Registro />} />
 
       </Routes>
         

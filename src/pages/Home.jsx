@@ -1,16 +1,14 @@
 import React from 'react';
 import Navbar from '../components/navbar';
 import { motion } from 'framer-motion';
-import { Link } from "react-router-dom";
-
-
+import { Link } from 'react-router-dom';
 
 const Home = () => {
-
     return (
         <div className="min-h-screen flex flex-col bg-gradient-primary">
             <Navbar />
-            <div className="pt-20"></div>
+            
+            <div className="pt-24 md:pt-28"></div>
             
             <main className="flex-grow flex items-center justify-center py-8 px-4">
                 <motion.div 
@@ -48,27 +46,60 @@ const Home = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6 }}
                     >
-                        <a href="/login" className="btn-primary">Iniciar sesión</a>
-                        <button className="px-6 py-3 border-2 border-indigo-500 text-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition-all">
+                        <motion.Link
+                            to="/login"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="btn-primary"
+                        >
+                            Iniciar sesión
+                        </motion.Link>
+                        <motion.Link
+                            to="/registro"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-6 py-3 border-2 border-indigo-500 text-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition-all"
+                        >
+                            Registrarse
+                        </motion.Link>
+                        <motion.button 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
+                        >
                             Conocer más
-                        </button>
+                        </motion.button>
                     </motion.div>
                     
                     
                     <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
-                        <Link to="/examenes" className="mt-8">
-                        <div className="p-4 rounded-lg bg-indigo-50 border border-indigo-100">
-                            <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4 mx-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                            </div>
-                            <h3 className="text-lg font-semibold text-indigo-800 mb-2">Exámenes Interactivos</h3>
-                            <p className="text-gray-600">Crea y realiza evaluaciones con diferentes tipos de preguntas.</p>
-                        </div>
+                        <Link to="/examenes">
+                            <motion.div 
+                                className="p-4 rounded-lg bg-indigo-50 border border-indigo-100"
+                                whileHover={{ 
+                                    y: -5, 
+                                    boxShadow: "0px 8px 15px rgba(99, 102, 241, 0.1)"
+                                }}
+                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            >
+                                <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4 mx-auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-semibold text-indigo-800 mb-2">Exámenes Interactivos</h3>
+                                <p className="text-gray-600">Crea y realiza evaluaciones con diferentes tipos de preguntas.</p>
+                            </motion.div>
                         </Link>
                         
-                        <div className="p-4 rounded-lg bg-purple-50 border border-purple-100">
+                        <motion.div 
+                            className="p-4 rounded-lg bg-purple-50 border border-purple-100"
+                            whileHover={{ 
+                                y: -5, 
+                                boxShadow: "0px 8px 15px rgba(124, 58, 237, 0.1)"
+                            }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
                             <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-4 mx-auto">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -76,9 +107,16 @@ const Home = () => {
                             </div>
                             <h3 className="text-lg font-semibold text-purple-800 mb-2">Resultados al instante</h3>
                             <p className="text-gray-600">Obtén retroalimentación inmediata sobre tu desempeño.</p>
-                        </div>
+                        </motion.div>
                         
-                        <div className="p-4 rounded-lg bg-indigo-50 border border-indigo-100">
+                        <motion.div 
+                            className="p-4 rounded-lg bg-indigo-50 border border-indigo-100"
+                            whileHover={{ 
+                                y: -5, 
+                                boxShadow: "0px 8px 15px rgba(99, 102, 241, 0.1)"
+                            }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
                             <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4 mx-auto">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -86,7 +124,7 @@ const Home = () => {
                             </div>
                             <h3 className="text-lg font-semibold text-indigo-800 mb-2">Seguimiento de progreso</h3>
                             <p className="text-gray-600">Visualiza tus avances y áreas de mejora con estadísticas detalladas.</p>
-                        </div>
+                        </motion.div>
                     </div>
                 </motion.div>
             </main>
