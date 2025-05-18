@@ -1,9 +1,12 @@
 import api from "../services/api";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function Login() {
     const navigate = useNavigate();
+    const [intentosFallidos, setIntentosFallidos] = useState(0);
+    const [debugInfo, setDebugInfo] = useState(null);
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -13,8 +16,19 @@ export default function Login() {
 
         try {
             const response = await api.post("/auth/login", { email, contrasena });
+            
+            // Guardar información de diagnóstico
+            setDebugInfo({
+                codigoResultado: response.data.codigoResultado,
+                mensajeResultado: response.data.mensajeResultado,
+                datoExtra: response.data.datoExtra || null
+            });
+            
+            console.log("Respuesta del servidor:", response.data);
 
             if (response.data.codigoResultado === 1) {
+                // Resetear intentos fallidos al lograr un login exitoso
+                setIntentosFallidos(0);
                 Swal.fire("Éxito", "Bienvenido!", "success");
                 // Guardar la respuesta en localStorage
                 localStorage.setItem("user", JSON.stringify(response.data));
@@ -26,21 +40,63 @@ export default function Login() {
                 }
             } else {
                 let errorMessage = "Error desconocido";
+                let intentosRestantes = 0;
+                
                 switch(response.data.codigoResultado) {
-                    case -1: errorMessage = "Usuario no encontrado"; break;
-                    case -2: errorMessage = "Cuenta inactiva"; break;
-                    case -3: errorMessage = "Cuenta bloqueada"; break;
-                    case -4: errorMessage = "Contraseña incorrecta"; break;
+                    case -1: 
+                        errorMessage = "Usuario no encontrado"; 
+                        break;
+                    case -2: 
+                        errorMessage = "Cuenta inactiva"; 
+                        break;
+                    case -3: 
+                        // Mostrar mensaje especial para cuentas bloqueadas
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Cuenta bloqueada',
+                            text: 'Tu cuenta ha sido bloqueada por seguridad después de múltiples intentos fallidos.',
+                            footer: '<a href="/recuperar-cuenta">¿Necesitas recuperar acceso a tu cuenta?</a>'
+                        });
+                        return;
+                    case -4: 
+                        // Incrementar contador de intentos fallidos
+                        const nuevosIntentos = intentosFallidos + 1;
+                        setIntentosFallidos(nuevosIntentos);
+                        
+                        // Calcular intentos restantes (asumiendo máximo 3 intentos)
+                        intentosRestantes = Math.max(0, 3 - nuevosIntentos);
+                        
+                        // Mensaje personalizado según los intentos restantes
+                        if (intentosRestantes > 0) {
+                            errorMessage = `Contraseña incorrecta. Te quedan ${intentosRestantes} ${intentosRestantes === 1 ? 'intento' : 'intentos'} antes de que tu cuenta sea bloqueada.`;
+                        } else {
+                            errorMessage = "Contraseña incorrecta. Tu cuenta será bloqueada después de este intento.";
+                        }
+                        break;
+                    case -99:
+                        errorMessage = "Error de base de datos: " + response.data.mensajeResultado;
+                        break;
                 }
                 Swal.fire("Error", errorMessage, "error");
             }
         } catch (error) {
+            console.error("Error en login:", error);
             if (error.response) {
+                setDebugInfo({
+                    error: true,
+                    status: error.response.status,
+                    data: error.response.data
+                });
                 Swal.fire("Error", "Problema con el servidor", "error");
             } else {
                 Swal.fire("Error", "No se pudo conectar al servidor", "error");
             }
         }
+    };
+
+    const handleRecuperarCuenta = (e) => {
+        e.preventDefault();
+        navigate("/recuperar-cuenta");
     };
 
     return (
@@ -108,15 +164,32 @@ export default function Login() {
                         Ingresar
                     </button>
                 </form>
-                <div className="mt-6 text-center">
+                <div className="mt-6 text-center space-y-2">
                     <a
                         href="#"
                         className="text-sm text-[var(--color-accent)] hover:underline"
                     >
                         ¿Olvidaste tu contraseña?
                     </a>
+                    <div>
+                        <a
+                            href="/recuperar-cuenta" 
+                            onClick={handleRecuperarCuenta}
+                            className="text-sm text-[var(--color-accent)] hover:underline block mt-1"
+                        >
+                            ¿Cuenta bloqueada? Recuperar acceso
+                        </a>
+                    </div>
                 </div>
+                
+                {/* Área de diagnóstico (solo visible en modo de desarrollo) */}
+                {debugInfo && process.env.NODE_ENV === 'development' && (
+                    <div className="mt-6 p-4 bg-gray-100 rounded-lg text-xs text-left">
+                        <h4 className="font-bold mb-2">Diagnóstico</h4>
+                        <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+                    </div>
+                )}
             </div>
         </div>
     );
-}
+} 
