@@ -16,7 +16,14 @@ export default function Login() {
 
             if (response.data.codigoResultado === 1) {
                 Swal.fire("Éxito", "Bienvenido!", "success");
-                // Redirigir al dashboard o guardar token
+                // Guardar la respuesta en localStorage
+                localStorage.setItem("user", JSON.stringify(response.data));
+                // Redirigir según el tipo de usuario
+                if (response.data.tipoUsuario === "Estudiante") {
+                    navigate("/");
+                } else {
+                    navigate("/homeProfe");
+                }
             } else {
                 let errorMessage = "Error desconocido";
                 switch(response.data.codigoResultado) {
