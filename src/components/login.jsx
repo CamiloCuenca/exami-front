@@ -95,8 +95,31 @@ export default function Login() {
 
             if (response.data.codigoResultado === LOGIN_EXITOSO) {
                 setIntentosFallidos(0);
-                Swal.fire("Éxito", "Bienvenido!", "success");
-                // Redirigir al dashboard o guardar token
+                
+                // Guardar la respuesta en localStorage
+                localStorage.setItem("user", JSON.stringify(response.data));
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Bienvenido!',
+                    text: '¡Inicio de sesión exitoso!',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    background: '#fff',
+                    customClass: {
+                        popup: 'animated fadeInDown'
+                    }
+                });
+
+                // Redirigir según el tipo de usuario después de que se cierre la alerta
+                setTimeout(() => {
+                    if (response.data.tipoUsuario === "Estudiante") {
+                        navigate("/");
+                    } else {
+                        navigate("/homeProfe");
+                    }
+                }, 1600);
+                
             } else {
                 // Manejar diferentes códigos de error alineados con el backend
                 switch(response.data.codigoResultado) {
