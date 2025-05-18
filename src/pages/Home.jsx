@@ -1,8 +1,12 @@
 import React from 'react';
 import Navbar from '../components/navbar';
 import { motion } from 'framer-motion';
+import { Link } from "react-router-dom";
+
+
 
 const Home = () => {
+
     return (
         <div className="min-h-screen flex flex-col bg-gradient-primary">
             <Navbar />
@@ -16,7 +20,7 @@ const Home = () => {
                     className="card max-w-3xl w-full mx-auto text-center py-12"
                 >
                     <div className="card-header"></div>
-                    
+                  
                     <div className="mb-8 mt-4">
                         <motion.h1 
                             className="text-4xl md:text-5xl font-bold mb-4"
@@ -50,7 +54,9 @@ const Home = () => {
                         </button>
                     </motion.div>
                     
+                    
                     <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+                        <Link to="/examenes" className="mt-8">
                         <div className="p-4 rounded-lg bg-indigo-50 border border-indigo-100">
                             <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4 mx-auto">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -60,6 +66,7 @@ const Home = () => {
                             <h3 className="text-lg font-semibold text-indigo-800 mb-2">Exámenes Interactivos</h3>
                             <p className="text-gray-600">Crea y realiza evaluaciones con diferentes tipos de preguntas.</p>
                         </div>
+                        </Link>
                         
                         <div className="p-4 rounded-lg bg-purple-50 border border-purple-100">
                             <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-4 mx-auto">
