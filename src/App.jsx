@@ -8,6 +8,7 @@ import Examenes from './pages/examenes';
 
 
 import Registro from './components/registro';
+import RecuperarCuenta from './components/RecuperarCuenta';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/examenes" element={<Examenes />} />
         <Route path="/registro" element={<Registro />} />
+        <Route path="/recuperar-cuenta" element={<RecuperarCuenta />} />
 
       </Routes>
         

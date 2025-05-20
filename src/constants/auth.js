@@ -6,6 +6,12 @@ export const LOGIN_CUENTA_BLOQUEADA = -3;
 export const LOGIN_CONTRASENA_INCORRECTA = -4;
 export const LOGIN_ERROR_INESPERADO = -99;
 
+// Códigos de resultado para recuperación de cuenta
+export const RECUPERACION_EXITOSA = 1;
+export const RECUPERACION_USUARIO_NO_ENCONTRADO = -1;
+export const RECUPERACION_CUENTA_NO_BLOQUEADA = -2;
+export const RECUPERACION_ERROR_INESPERADO = -99;
+
 // Códigos de resultado del procedimiento almacenado para registro
 export const COD_EXITO = 0;
 export const COD_EMAIL_YA_EXISTE = 1;

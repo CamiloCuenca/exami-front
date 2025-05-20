@@ -163,10 +163,10 @@ export default function Login() {
                             html: `
                                 <div class="text-center">
                                     <p class="mb-4">${response.data.mensajeResultado || 'Tu cuenta ha sido bloqueada por seguridad después de múltiples intentos fallidos.'}</p>
-                                    <p>Debes esperar 30 minutos o usar la opción de recuperar acceso.</p>
+                                    <p>Puedes desbloquear tu cuenta ingresando tu correo y contraseña actual.</p>
                                 </div>
                             `,
-                            footer: '<a href="/recuperar-cuenta" class="text-indigo-600 hover:text-indigo-800">¿Necesitas recuperar acceso a tu cuenta?</a>',
+                            footer: '<a href="/recuperar-cuenta" class="text-indigo-600 hover:text-indigo-800">¿Necesitas desbloquear tu cuenta?</a>',
                             confirmButtonColor: '#7c3aed',
                             background: '#fff',
                             customClass: {
@@ -546,7 +546,7 @@ export default function Login() {
                             onClick={handleRecuperarCuenta}
                             className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors block mt-1"
                         >
-                            ¿Cuenta bloqueada? Recuperar acceso
+                            ¿Cuenta bloqueada? Desbloquear acceso
                         </a>
                     </motion.div>
                 </motion.div>
