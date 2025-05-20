@@ -27,6 +27,7 @@ export default function Registro() {
         telefono: "",
         direccion: ""
     });
+    const [showPassword, setShowPassword] = useState(false);
 
     // Manejar cambios en los inputs
     const handleChange = (e) => {
@@ -175,6 +176,10 @@ export default function Registro() {
         }
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
             <motion.div
@@ -210,164 +215,183 @@ export default function Registro() {
                 </button>
 
                 {/* Título */}
-                <h1 className="text-3xl font-bold text-center mb-8 text-indigo-800 relative z-10">
+                <h1 className="text-3xl font-bold text-center mb-8 text-indigo-800 relative z-10 font-heading">
                     Crear Cuenta
                 </h1>
 
-                <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+                <form onSubmit={handleSubmit} className="space-y-4 relative z-10 font-sans">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Nombre */}
-                        <div>
-                            <label htmlFor="nombre" className="block text-sm font-semibold text-indigo-800 mb-1">
-                                Nombre *
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 0.4 }}
+                        >
+                            <label
+                                htmlFor="nombre"
+                                className="block text-sm font-semibold text-indigo-800 mb-1"
+                            >
+                                Nombre
                             </label>
                             <input
                                 type="text"
                                 id="nombre"
                                 name="nombre"
-                                value={formData.nombre}
-                                onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all ${validationErrors.nombre ? "border-red-500" : "border-gray-200"}`}
+                                required
+                                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu nombre"
                             />
-                            {validationErrors.nombre && (
-                                <p className="text-red-500 text-xs mt-1">{validationErrors.nombre}</p>
-                            )}
-                        </div>
+                        </motion.div>
                         
                         {/* Apellido */}
-                        <div>
-                            <label htmlFor="apellido" className="block text-sm font-semibold text-indigo-800 mb-1">
-                                Apellido *
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 0.5 }}
+                        >
+                            <label
+                                htmlFor="apellido"
+                                className="block text-sm font-semibold text-indigo-800 mb-1"
+                            >
+                                Apellido
                             </label>
                             <input
                                 type="text"
                                 id="apellido"
                                 name="apellido"
-                                value={formData.apellido}
-                                onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all ${validationErrors.apellido ? "border-red-500" : "border-gray-200"}`}
+                                required
+                                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu apellido"
                             />
-                            {validationErrors.apellido && (
-                                <p className="text-red-500 text-xs mt-1">{validationErrors.apellido}</p>
-                            )}
-                        </div>
+                        </motion.div>
                     </div>
                     
                     {/* Email */}
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-semibold text-indigo-800 mb-1">
-                            Email *
+                    <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.6 }}
+                    >
+                        <label
+                            htmlFor="email"
+                            className="block text-sm font-semibold text-indigo-800 mb-1"
+                        >
+                            Email
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                </svg>
-                            </div>
                             <input
                                 type="email"
                                 id="email"
                                 name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className={`w-full pl-10 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all ${validationErrors.email ? "border-red-500" : "border-gray-200"}`}
+                                required
+                                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="ejemplo@correo.com"
                             />
                         </div>
-                        {validationErrors.email && (
-                            <p className="text-red-500 text-xs mt-1">{validationErrors.email}</p>
-                        )}
-                    </div>
+                    </motion.div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Contraseña */}
-                        <div>
-                            <label htmlFor="contrasena" className="block text-sm font-semibold text-indigo-800 mb-1">
-                                Contraseña *
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 0.7 }}
+                        >
+                            <label
+                                htmlFor="contrasena"
+                                className="block text-sm font-semibold text-indigo-800 mb-1"
+                            >
+                                Contraseña
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                </div>
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     id="contrasena"
                                     name="contrasena"
-                                    value={formData.contrasena}
-                                    onChange={handleChange}
-                                    className={`w-full pl-10 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all ${validationErrors.contrasena ? "border-red-500" : "border-gray-200"}`}
-                                    placeholder="Mínimo 8 caracteres"
+                                    required
+                                    className="w-full pr-10 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
+                                    placeholder="Crea tu contraseña"
                                 />
-                            </div>
-                            {validationErrors.contrasena && (
-                                <p className="text-red-500 text-xs mt-1">{validationErrors.contrasena}</p>
-                            )}
-                        </div>
-                        
-                        {/* Confirmar Contraseña */}
-                        <div>
-                            <label htmlFor="confirmContrasena" className="block text-sm font-semibold text-indigo-800 mb-1">
-                                Confirmar Contraseña *
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div 
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                                    onClick={togglePasswordVisibility}
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12a3 3 0 100-6 3 3 0 000 6z" />
                                     </svg>
                                 </div>
+                            </div>
+                        </motion.div>
+                        
+                        {/* Confirmar Contraseña */}
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 0.8 }}
+                        >
+                            <label
+                                htmlFor="confirmContrasena"
+                                className="block text-sm font-semibold text-indigo-800 mb-1"
+                            >
+                                Confirmar Contraseña
+                            </label>
+                            <div className="relative">
                                 <input
                                     type="password"
                                     id="confirmContrasena"
                                     name="confirmContrasena"
-                                    value={formData.confirmContrasena}
-                                    onChange={handleChange}
-                                    className={`w-full pl-10 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all ${validationErrors.confirmContrasena ? "border-red-500" : "border-gray-200"}`}
+                                    required
+                                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                     placeholder="Repite tu contraseña"
                                 />
                             </div>
-                            {validationErrors.confirmContrasena && (
-                                <p className="text-red-500 text-xs mt-1">{validationErrors.confirmContrasena}</p>
-                            )}
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Campos opcionales */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Teléfono (opcional) */}
-                        <div>
-                            <label htmlFor="telefono" className="block text-sm font-semibold text-indigo-800 mb-1">
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 0.9 }}
+                        >
+                            <label
+                                htmlFor="telefono"
+                                className="block text-sm font-semibold text-indigo-800 mb-1"
+                            >
                                 Teléfono (opcional)
                             </label>
                             <input
                                 type="tel"
                                 id="telefono"
                                 name="telefono"
-                                value={formData.telefono}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all"
+                                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Teléfono de contacto"
                             />
-                        </div>
+                        </motion.div>
                         
                         {/* Dirección (opcional) */}
-                        <div>
-                            <label htmlFor="direccion" className="block text-sm font-semibold text-indigo-800 mb-1">
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 1.0 }}
+                        >
+                            <label
+                                htmlFor="direccion"
+                                className="block text-sm font-semibold text-indigo-800 mb-1"
+                            >
                                 Dirección (opcional)
                             </label>
                             <input
                                 type="text"
                                 id="direccion"
                                 name="direccion"
-                                value={formData.direccion}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all"
+                                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu dirección"
                             />
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Botón de registro */}
