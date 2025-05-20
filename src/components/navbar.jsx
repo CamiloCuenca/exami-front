@@ -4,14 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
-    const [scrollY, setScrollY] = useState(0);
-    
-    // Detectar cuando el usuario hace scroll para añadir sombra y/o efectos adicionales
+    const [user, setUser] = useState(null);
+    const [isOpen, setIsOpen] = useState(false); // Estado para el menú móvil
+
+    // Define el gradiente para el fondo del header y el indicador de scroll
+    const headerGradient = "linear-gradient(to right, var(--tw-gradient-stops))";
+
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            setScrollY(currentScrollY);
-            if (currentScrollY > 10) {
+            if (window.scrollY > 10) {
                 setIsScrolled(true);
             } else {
                 setIsScrolled(false);
@@ -20,14 +21,17 @@ const Header = () => {
         
         window.addEventListener('scroll', handleScroll);
         
+        // Cargar usuario del localStorage
+        const userData = localStorage.getItem("user");
+        if (userData) {
+            setUser(JSON.parse(userData));
+        }
+        
         // Limpieza del event listener
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
-
-    // Verificar si hay un usuario en localStorage
-    const user = localStorage.getItem("user");
 
     // Función para manejar cerrar sesión
     const handleAuthClick = (e) => {
@@ -38,119 +42,219 @@ const Header = () => {
         }
     };
 
+    // Alternar el estado del menú móvil
+    const toggleMenu = () => {
+        setIsOpen(!isOpen);
+    };
+
     return (
-        <motion.header 
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg backdrop-blur-md bg-white/90' : 'bg-white'}`}
+        <motion.header
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            transition={{ type: "spring", stiffness: 120, damping: 20 }}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-lg`}
+            style={{
+                // Remove background image and opacity/blur
+            }}
         >
-            {/* Barra decorativa superior con el gradiente */}
-            <div className="absolute top-0 left-0 right-0 h-1 z-10" style={{ backgroundImage: 'var(--gradient-header)' }}></div>
-            
-            <div className={`flex items-center justify-between px-6 transition-all duration-300 ${isScrolled ? 'py-3' : 'py-4'}`}>
-                <Link to="/" className="flex items-center space-x-2 relative">
-                    <motion.div 
-                        className="h-10 w-10 rounded-full flex items-center justify-center"
-                        style={{ backgroundImage: 'linear-gradient(to right bottom, var(--color-indigo), var(--color-accent))' }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        <span className="text-white text-lg font-bold">E</span>
-                    </motion.div>
-                    <motion.span 
-                        className="text-2xl font-bold" 
-                        style={{ color: 'var(--color-text-secondary)' }}
-                        animate={{ opacity: isScrolled ? 1 : 1 }}
-                    >
-                        EXAMI
-                    </motion.span>
-                    {isScrolled && (
-                        <motion.div 
-                            className="absolute -bottom-1 left-0 right-0 h-0.5" 
-                            style={{ backgroundImage: 'var(--gradient-header)' }}
-                            initial={{ width: 0, opacity: 0 }}
-                            animate={{ width: "100%", opacity: 1 }}
-                            transition={{ delay: 0.1 }}
-                        />
-                    )}
+            <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                {/* Logo o Nombre de la App */}
+                <Link to="/" className="flex items-center">
+                    {/* Aquí puedes poner tu SVG o un img tag para el logo */}
+                    {/* Ejemplo de placeholder SVG de libro */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-800 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253" />
+                    </svg>
+                    <span className="text-xl font-bold text-indigo-800 font-heading">Exami</span>
                 </Link>
-                
-                {/* Links Centrados */}
-                <nav className="flex-1 flex justify-center">
-                    <ul className="flex space-x-8">
-                        <li>
-                            <Link to="/" className="text-base font-medium hover:text-indigo-600 transition-colors">Inicio</Link>
-                        </li>
-                        <li>
-                            <Link to="/examenes" className="text-base font-medium hover:text-indigo-600 transition-colors">Examenes</Link>
-                        </li>
-                        <li>
-                            <span className="text-base font-medium text-gray-400 cursor-not-allowed">Estadisticas</span>
-                        </li>
+
+                {/* Botón del menú móvil */}
+                <div className="md:hidden">
+                    <button onClick={toggleMenu} className="text-indigo-800 focus:outline-none">
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Links Centrados - Ocultos en móvil por defecto */}
+                <nav className={`md:flex flex-1 justify-center ${isOpen ? 'block absolute top-full left-0 right-0 bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-lg py-4 md:static md:bg-transparent md:shadow-none md:py-0 font-sans' : 'hidden font-sans'}`}>
+                    <ul className={`flex ${isOpen ? 'flex-col items-center space-y-4' : 'space-x-8'} md:flex-row md:space-y-0`}>
+                        {user ? (
+                            <>
+                                <motion.li whileHover={{ scale: 1.05 }}>
+                                    <Link 
+                                        to={user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe"} 
+                                        className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                    >
+                                        🏠<span className="ml-1">Inicio</span>
+                                    </Link>
+                                </motion.li>
+                                <motion.li whileHover={{ scale: 1.05 }}>
+                                    <Link 
+                                        to="/examenes" 
+                                        className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                    >
+                                        📝<span className="ml-1">Exámenes</span>
+                                    </Link>
+                                </motion.li>
+                                <motion.li whileHover={{ scale: 1.05 }}>
+                                    <Link 
+                                        to="/estadisticas" 
+                                        className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                    >
+                                        📊<span className="ml-1">Estadísticas</span>
+                                    </Link>
+                                </motion.li>
+                            </>
+                        ) : (
+                            <>
+                                <motion.li whileHover={{ scale: 1.05 }}>
+                                    <Link 
+                                        to="/" 
+                                        className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                    >
+                                        🏠<span className="ml-1">Inicio</span>
+                                    </Link>
+                                </motion.li>
+                                {/* Puedes añadir más links públicos aquí */}
+                            </>
+                        )}
                     </ul>
                 </nav>
                 
-                {/* Auth Buttons */}
-                <div className="flex items-center space-x-4">
+                {/* Sección de Usuario / Auth Buttons */}
+                <div className="hidden md:flex items-center space-x-4 font-sans">
                     {user ? (
                         <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center space-x-3"
                         >
-                            <Link
-                                to="#"
-                                onClick={handleAuthClick}
-                                className={`transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg px-5 py-2 rounded-lg`}
-                            >
-                                Cerrar sesión
-                            </Link>
-                        </motion.div>
-                    ) : (
-                        <>
-                            <motion.div
+                            <span className="text-sm font-semibold text-indigo-800">
+                                {user.tipoUsuario === "Estudiante" ? "👨‍🎓 Estudiante" : "👨‍🏫 Docente"} {user.nombre}
+                            </span>
+                            <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="mr-2"
+                                onClick={handleAuthClick}
+                                className="transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium"
                             >
+                                Cerrar sesión
+                            </motion.button>
+                        </motion.div>
+                    ) : (
+                        <div className="flex items-center space-x-3">
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                 <Link
                                     to="/registro"
-                                    className={`transition-all duration-300 ${
-                                        isScrolled 
-                                        ? 'bg-transparent border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 px-5 py-2 rounded-lg' 
-                                        : 'btn-secondary'
-                                    }`}
+                                    className={`transition-all duration-300 text-indigo-600 hover:text-indigo-800 font-medium text-sm`}
                                 >
                                     Registrarse
                                 </Link>
                             </motion.div>
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                 <Link
                                     to="/login"
-                                    className={`transition-all duration-300 ${
-                                        isScrolled 
-                                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md hover:shadow-lg px-5 py-2 rounded-lg' 
-                                        : 'btn-primary'
-                                    }`}
+                                    className={`transition-all duration-300 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium`}
                                 >
                                     Iniciar Sesión
                                 </Link>
                             </motion.div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
-            
-            {/* Indicador de progreso de scroll */}
-            <motion.div 
-                className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-500"
-                style={{ width: `${(scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%`,
-                         opacity: isScrolled ? 1 : 0 }}
-                transition={{ duration: 0.3 }}
-            ></motion.div>
+
+            {/* Menú móvil (solo visible cuando isOpen es true) */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.nav
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="md:hidden bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-inner py-4"
+                    >
+                        <ul className="flex flex-col items-center space-y-4">
+                            {user ? (
+                                <>
+                                    <motion.li whileTap={{ scale: 0.95 }}>
+                                        <Link 
+                                            to={user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe"} 
+                                            className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                            onClick={() => setIsOpen(false)} // Cerrar menú al hacer clic
+                                        >
+                                            🏠<span className="ml-1">Inicio</span>
+                                        </Link>
+                                    </motion.li>
+                                    <motion.li whileTap={{ scale: 0.95 }}>
+                                        <Link 
+                                            to="/examenes" 
+                                            className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            📝<span className="ml-1">Exámenes</span>
+                                        </Link>
+                                    </motion.li>
+                                    <motion.li whileTap={{ scale: 0.95 }}>
+                                        <Link 
+                                            to="/estadisticas" 
+                                            className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            📊<span className="ml-1">Estadísticas</span>
+                                        </Link>
+                                    </motion.li>
+                                    {/* User Info and Logout in Mobile */}
+                                    <li className="pt-4 border-t border-gray-200 w-full text-center">
+                                        <span className="text-sm font-semibold text-indigo-800 block mb-2">
+                                            {user.tipoUsuario === "Estudiante" ? "👨‍🎓 Estudiante" : "👨‍🏫 Docente"} {user.nombre}
+                                        </span>
+                                        <motion.button
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => { handleAuthClick({preventDefault: () => {}}); setIsOpen(false); }}
+                                            className="transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium"
+                                        >
+                                            Cerrar sesión
+                                        </motion.button>
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <motion.li whileTap={{ scale: 0.95 }}>
+                                        <Link 
+                                            to="/" 
+                                            className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            🏠<span className="ml-1">Inicio</span>
+                                        </Link>
+                                    </motion.li>
+                                    <motion.li whileTap={{ scale: 0.95 }}>
+                                        <Link
+                                            to="/registro"
+                                            className={`transition-all duration-300 text-indigo-600 hover:text-indigo-800 font-medium text-sm`}
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Registrarse
+                                        </Link>
+                                    </motion.li>
+                                    <motion.li whileTap={{ scale: 0.95 }}>
+                                        <Link
+                                            to="/login"
+                                            className={`transition-all duration-300 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium`}
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Iniciar Sesión
+                                        </Link>
+                                    </motion.li>
+                                </>
+                            )}
+                        </ul>
+                    </motion.nav>
+                )}
+            </AnimatePresence>
         </motion.header>
     );
 };

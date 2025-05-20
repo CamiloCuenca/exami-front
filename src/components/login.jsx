@@ -110,6 +110,7 @@ export default function Login() {
                 setIntentosFallidos(0);
                 
                 // Guardar la respuesta en localStorage
+                console.log("Datos del usuario a guardar:", response.data); // Para depuración
                 localStorage.setItem("user", JSON.stringify(response.data));
 
                 Swal.fire({
@@ -126,13 +127,13 @@ export default function Login() {
 
                 // Redirigir según el tipo de usuario después de que se cierre la alerta
                 setTimeout(() => {
+                    console.log("Tipo de usuario para redirección:", response.data.tipoUsuario); // Para depuración
                     if (response.data.tipoUsuario === "Estudiante") {
-                        navigate("/");
-                    } else {
-                        navigate("/homeProfe");
+                        navigate("/home-estudiante");
+                    } else if (response.data.tipoUsuario === "Docente") {
+                        navigate("/home-profe");
                     }
                 }, 1600);
-                
             } else {
                 // Manejar diferentes códigos de error alineados con el backend
                 switch(response.data.codigoResultado) {
@@ -404,7 +405,7 @@ export default function Login() {
                 </motion.div>
 
                 <motion.h1 
-                    className="text-3xl font-bold text-center mb-8 text-indigo-800 relative z-10"
+                    className="text-3xl font-bold text-center mb-8 text-indigo-800 relative z-10 font-heading"
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.4, delay: 0.2 }}
@@ -412,7 +413,7 @@ export default function Login() {
                     Iniciar Sesión
                 </motion.h1>
 
-                <form onSubmit={handleLogin} className="space-y-6 relative z-10">
+                <form onSubmit={handleLogin} className="space-y-6 relative z-10 font-sans">
                     <motion.div
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -435,7 +436,7 @@ export default function Login() {
                                 id="email"
                                 name="email"
                                 required
-                                className="w-full pl-10 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all"
+                                className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="ejemplo@correo.com"
                             />
                         </div>
@@ -463,11 +464,11 @@ export default function Login() {
                                 id="contrasena"
                                 name="contrasena"
                                 required
-                                className="w-full pl-10 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all"
+                                className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu contraseña"
                             />
                             <div 
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" 
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                                 onClick={togglePasswordVisibility}
                             >
                                 {showPassword ? (
