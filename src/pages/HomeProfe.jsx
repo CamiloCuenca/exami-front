@@ -6,6 +6,7 @@ import api from '../services/api';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, CheckCircle, Users, BarChart2 } from 'react-feather';
+import ExamenCard from '../components/ExamenCard';
 
 const HomeProfe = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +59,76 @@ const HomeProfe = () => {
                 icon: 'error',
                 title: 'Error',
                 text: 'No se pudieron cargar los datos',
+                confirmButtonColor: '#7c3aed'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.idUsuario) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de autenticación',
+                text: 'No se pudo obtener el ID del docente.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
+        }
+        
+        const examenData = {
+            idDocente: user.idUsuario, // Obtener del usuario autenticado
+            idTema: parseInt(formData.idTema), // Asegúrate de que el campo idTema exista en tu formulario y estado formData
+            nombre: formData.nombre,
+            descripcion: formData.descripcion,
+            fechaInicio: formData.fechaInicio, // Asegúrate de que el formato sea ISO 8601 o compatible con el backend
+            fechaFin: formData.fechaFin,       // Asegúrate de que el formato sea ISO 8601 o compatible con el backend
+            tiempoLimite: parseInt(formData.tiempoLimite), // Convertir a número
+            pesoCurso: parseFloat(formData.pesoCurso),     // Convertir a número (si es decimal)
+            umbralAprobacion: parseInt(formData.umbralAprobacion), // Convertir a número
+            cantidadPreguntasTotal: parseInt(formData.cantidadPreguntasTotal), // Convertir a número
+            cantidadPreguntasPresentar: parseInt(formData.cantidadPreguntasPresentar), // Convertir a número
+            idCategoria: parseInt(formData.idCategoria), // Asegúrate de que el campo idCategoria exista
+            intentosPermitidos: parseInt(formData.intentosPermitidos), // Convertir a número
+            mostrarResultados: formData.mostrarResultados === '1', // Convertir a booleano si el backend espera boolean
+            permitirRetroalimentacion: formData.permitirRetroalimentacion === '1' // Convertir a booleano
+        };
+
+        console.log("Datos a enviar para crear examen:", examenData); // Log para depuración
+
+        try {
+            const response = await api.post("/api/quiz/crear", examenData); // Endpoint de creación
+
+            if (response.data.codigoResultado === 1) { // Suponiendo que 1 es COD_EXITO
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'Examen creado correctamente.',
+                    confirmButtonColor: '#7c3aed'
+                });
+                // Opcional: Redirigir o actualizar la lista de exámenes
+                // navigate("/home-profe"); 
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.data.mensajeResultado || 'Error desconocido al crear el examen.',
+                    confirmButtonColor: '#7c3aed'
+                });
+            }
+
+        } catch (error) {
+            console.error("Error al crear examen:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor para crear el examen.',
                 confirmButtonColor: '#7c3aed'
             });
         } finally {
@@ -152,29 +223,9 @@ const HomeProfe = () => {
                                     key={examen.idExamen}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300"
+                                    className=""
                                 >
-                                    <h3 className="font-semibold text-lg text-indigo-800 mb-2">
-                                        {examen.nombre}
-                                    </h3>
-                                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                                        {examen.descripcion}
-                                    </p>
-                                    <div className="flex justify-between items-center">
-                                        <span className={`px-3 py-1 rounded-full text-sm ${
-                                            examen.estado === "Disponible" ? "bg-green-100 text-green-800" :
-                                            examen.estado === "Finalizado" ? "bg-red-100 text-red-800" :
-                                            "bg-yellow-100 text-yellow-800"
-                                        }`}>
-                                            {examen.estado}
-                                        </span>
-                                        <Link 
-                                            to={`/examen/${examen.idExamen}`}
-                                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                                        >
-                                            Ver detalles →
-                                        </Link>
-                                    </div>
+                                    <ExamenCard examen={examen} />
                                 </motion.div>
                             ))}
                         </div>
