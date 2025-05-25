@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../components/navbar';
-import { Link } from 'react-router-dom';
+import ExamenCardEstudiante from '../components/ExamenCardEstudiante';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, CheckCircle, BarChart2, Award } from 'react-feather';
 
 const HomeEstudiante = () => {
-    const [isLoading, setIsLoading] = useState(true);
     const [examenes, setExamenes] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [estadisticas, setEstadisticas] = useState({
         examenesPendientes: 0,
         examenesCompletados: 0,
@@ -24,34 +25,44 @@ const HomeEstudiante = () => {
             navigate("/login");
             return;
         }
-        cargarDatos();
+        cargarExamenes();
     }, [navigate]);
 
-    const cargarDatos = async () => {
+    const cargarExamenes = async () => {
         try {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user || !user.idUsuario) {
-                throw new Error("No hay usuario autenticado");
+                throw new Error("No se pudo obtener el ID del estudiante");
             }
 
-            // Cargar exámenes
-            const responseExamenes = await api.get(`/api/quiz/estudiante/${user.idUsuario}`);
-            setExamenes(responseExamenes.data);
-
-            // Cargar estadísticas (simuladas por ahora)
-            setEstadisticas({
-                examenesPendientes: responseExamenes.data.filter(e => e.estado === "Disponible").length,
-                examenesCompletados: responseExamenes.data.filter(e => e.estado === "Finalizado").length,
-                promedioNotas: 8.5, // Simulado
-                ultimaNota: 9.0 // Simulado
-            });
-
+            const response = await api.get(`/examen/mis-examenes/${user.idUsuario}`);
+            
+            if (response.data.success) {
+                setExamenes(response.data.data || []);
+                setEstadisticas({
+                    examenesPendientes: response.data.data.filter(e => e.estado === "Disponible").length,
+                    examenesCompletados: response.data.data.filter(e => e.estado === "Finalizado").length,
+                    promedioNotas: 8.5, // Simulado
+                    ultimaNota: 9.0 // Simulado
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.data.message || 'Error al cargar los exámenes',
+                    confirmButtonColor: '#7c3aed'
+                });
+            }
         } catch (error) {
-            console.error("Error al cargar datos:", error);
+            console.error("Error al cargar exámenes:", error);
+            const mensajeError = error.response 
+                ? `Error ${error.response.status}: ${error.response.data?.message || 'Error desconocido'}`
+                : 'No se pudo conectar con el servidor';
+            
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'No se pudieron cargar los datos',
+                title: 'Error de conexión',
+                text: mensajeError,
                 confirmButtonColor: '#7c3aed'
             });
         } finally {
@@ -143,32 +154,11 @@ const HomeEstudiante = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {examenes
                                 .filter(e => e.estado === "Disponible")
-                                .slice(0, 6)
                                 .map((examen) => (
-                                    <motion.div
+                                    <ExamenCardEstudiante
                                         key={examen.idExamen}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300"
-                                    >
-                                        <h3 className="font-semibold text-lg text-indigo-800 mb-2">
-                                            {examen.nombre}
-                                        </h3>
-                                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                                            {examen.descripcion}
-                                        </p>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-sm text-gray-500">
-                                                {new Date(examen.fechaInicio).toLocaleDateString()}
-                                            </span>
-                                            <Link 
-                                                to={`/examen/${examen.idExamen}`}
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-                                            >
-                                                Comenzar
-                                            </Link>
-                                        </div>
-                                    </motion.div>
+                                        examen={examen}
+                                    />
                                 ))}
                         </div>
                     ) : (
@@ -178,12 +168,81 @@ const HomeEstudiante = () => {
                             transition={{ duration: 0.5 }}
                             className="text-center py-12 text-gray-500"
                         >
-                             <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
                             <p className="mt-4 text-lg font-semibold text-gray-600">¡No tienes exámenes disponibles en este momento!</p>
                             <p className="mt-2 text-gray-500">Revisa más tarde o contacta a tu docente si crees que debería haber exámenes.</p>
                         </motion.div>
+                    )}
+                </section>
+
+                {/* Exámenes en Progreso */}
+                <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes en Progreso
+                    </h2>
+                    {examenes.filter(e => e.estado === "En Progreso").length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {examenes
+                                .filter(e => e.estado === "En Progreso")
+                                .map((examen) => (
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
+                                        examen={examen}
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes en progreso.
+                        </div>
+                    )}
+                </section>
+
+                {/* Exámenes Completados */}
+                <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes Completados
+                    </h2>
+                    {examenes.filter(e => e.estado === "Completado").length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {examenes
+                                .filter(e => e.estado === "Completado")
+                                .map((examen) => (
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
+                                        examen={examen}
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes completados.
+                        </div>
+                    )}
+                </section>
+
+                {/* Exámenes Expirados */}
+                <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes Expirados
+                    </h2>
+                    {examenes.filter(e => e.estado === "Expirado").length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {examenes
+                                .filter(e => e.estado === "Expirado")
+                                .map((examen) => (
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
+                                        examen={examen}
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes expirados.
+                        </div>
                     )}
                 </section>
 
