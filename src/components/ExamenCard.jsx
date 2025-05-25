@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { Clock, Users, FileText, Award, RefreshCw, Eye, MessageSquare } from 'react-feather';
 
 const statusStyles = {
     "Finalizado": "bg-red-100 text-red-800",
@@ -10,9 +11,8 @@ const statusStyles = {
 };
 
 const ExamenCard = ({ examen }) => {
-    // Asegurarse de que examen y sus propiedades existan antes de acceder a ellas
     if (!examen) {
-        return null; // O puedes retornar un placeholder vacío
+        return null;
     }
 
     return (
@@ -37,33 +37,83 @@ const ExamenCard = ({ examen }) => {
                 </p>
                 
                 <div className="text-sm text-gray-700 space-y-2">
-                     {examen.nombreTopico && (
-                         <p className="flex items-center"><strong className="mr-1">Tópico:</strong> {examen.nombreTopico}</p>
-                     )}
-                     {examen.nombreCurso && (
-                         <p className="flex items-center"><strong className="mr-1">Curso:</strong> {examen.nombreCurso}</p>
-                     )}
-                    {examen.fechaInicio && (
-                        <p className="flex items-center"><strong className="mr-1">Inicio:</strong> {new Date(examen.fechaInicio).toLocaleDateString()} {new Date(examen.fechaInicio).toLocaleTimeString()}</p>
+                    {examen.nombreTema && (
+                        <p className="flex items-center">
+                            <FileText size={16} className="mr-2 text-indigo-600" />
+                            <span><strong className="mr-1">Tema:</strong> {examen.nombreTema}</span>
+                        </p>
                     )}
-                    {examen.fechaFin && (
-                        <p className="flex items-center"><strong className="mr-1">Fin:</strong> {new Date(examen.fechaFin).toLocaleDateString()} {new Date(examen.fechaFin).toLocaleTimeString()}</p>
+                    {examen.nombreCurso && (
+                        <p className="flex items-center">
+                            <Award size={16} className="mr-2 text-indigo-600" />
+                            <span><strong className="mr-1">Curso:</strong> {examen.nombreCurso}</span>
+                        </p>
                     )}
-                    {/* Añadir otros detalles importantes si están disponibles en DTO */}
+                    {examen.fechaInicioFormateada && (
+                        <p className="flex items-center">
+                            <Clock size={16} className="mr-2 text-indigo-600" />
+                            <span><strong className="mr-1">Inicio:</strong> {examen.fechaInicioFormateada}</span>
+                        </p>
+                    )}
+                    {examen.fechaFinFormateada && (
+                        <p className="flex items-center">
+                            <Clock size={16} className="mr-2 text-indigo-600" />
+                            <span><strong className="mr-1">Fin:</strong> {examen.fechaFinFormateada}</span>
+                        </p>
+                    )}
+                    <div className="grid grid-cols-2 gap-2 mt-4">
+                        <div className="flex items-center">
+                            <FileText size={16} className="mr-2 text-indigo-600" />
+                            <span className="text-xs">
+                                <strong>Preguntas:</strong> {examen.cantidadPreguntasPresentar}/{examen.cantidadPreguntasTotal}
+                            </span>
+                        </div>
+                        <div className="flex items-center">
+                            <Clock size={16} className="mr-2 text-indigo-600" />
+                            <span className="text-xs">
+                                <strong>Tiempo:</strong> {examen.tiempoLimite} min
+                            </span>
+                        </div>
+                        <div className="flex items-center">
+                            <Award size={16} className="mr-2 text-indigo-600" />
+                            <span className="text-xs">
+                                <strong>Peso:</strong> {examen.pesoCurso}%
+                            </span>
+                        </div>
+                        <div className="flex items-center">
+                            <RefreshCw size={16} className="mr-2 text-indigo-600" />
+                            <span className="text-xs">
+                                <strong>Intentos:</strong> {examen.intentosPermitidos}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex items-center mt-2">
+                        {examen.mostrarResultados === 1 && (
+                            <span className="flex items-center mr-4">
+                                <Eye size={16} className="mr-1 text-green-600" />
+                                <span className="text-xs text-green-600">Ver resultados</span>
+                            </span>
+                        )}
+                        {examen.permitirRetroalimentacion === 1 && (
+                            <span className="flex items-center">
+                                <MessageSquare size={16} className="mr-1 text-blue-600" />
+                                <span className="text-xs text-blue-600">Retroalimentación</span>
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
             
             <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-4">
-                {/* Botones de acción */}
                 {examen.estado === "Disponible" && (
                     <Link 
                         to={`/examen/${examen.idExamen}`}
                         className="text-sm font-medium text-green-600 hover:text-green-800 transition-colors"
                     >
-                        Comenzar
+                        Ver Detalles
                     </Link>
                 )}
-                 {examen.estado !== "Finalizado" && examen.estado !== "Disponible" && ( // Mostrar editar/eliminar si no ha finalizado o está disponible
+                {examen.estado !== "Finalizado" && examen.estado !== "Disponible" && (
                     <>
                         <Link 
                             to={`/editar-examen/${examen.idExamen}`}
@@ -72,15 +122,15 @@ const ExamenCard = ({ examen }) => {
                             Editar
                         </Link>
                         <button 
-                            onClick={() => alert(`Eliminar examen ${examen.idExamen}`)} // Placeholder: Implementar SweetAlert para confirmar
+                            onClick={() => alert(`Eliminar examen ${examen.idExamen}`)}
                             className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
                         >
                             Eliminar
                         </button>
                     </>
-                 )}
-                {examen.estado === "Finalizado" && ( // Mostrar ver resultados si ha finalizado
-                     <Link 
+                )}
+                {examen.estado === "Finalizado" && (
+                    <Link 
                         to={`/resultados-examen/${examen.idExamen}`}
                         className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
                     >
