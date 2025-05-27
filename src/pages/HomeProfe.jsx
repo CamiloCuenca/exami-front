@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../components/navbar';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
-import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, CheckCircle, Users, BarChart2 } from 'react-feather';
-import ExamenCard from '../components/ExamenCard';
+import Swal from 'sweetalert2';
 
 const HomeProfe = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -16,8 +14,6 @@ const HomeProfe = () => {
         totalEstudiantes: 0,
         promedioNotas: 0
     });
-    const [examenes, setExamenes] = useState([]);
-    const [isLoadingExamenes, setIsLoadingExamenes] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,7 +23,6 @@ const HomeProfe = () => {
             return;
         }
         cargarEstadisticas();
-        cargarExamenesDocente();
     }, [navigate]);
 
     const cargarEstadisticas = async () => {
@@ -46,116 +41,6 @@ const HomeProfe = () => {
                 icon: 'error',
                 title: 'Error',
                 text: 'No se pudieron cargar los datos',
-                confirmButtonColor: '#7c3aed'
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const cargarExamenesDocente = async () => {
-        setIsLoadingExamenes(true);
-        try {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user || !user.idUsuario) {
-                throw new Error("No se pudo obtener el ID del docente");
-            }
-
-            const response = await api.get(`/examen/mis-examenes-docente/${user.idUsuario}`);
-            console.log("Respuesta de exámenes del docente:", response.data);
-            if (response.data.success) {
-                setExamenes(response.data.data);
-            } else {
-                console.error("Error al cargar exámenes del docente:", response.data.message);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.data.message || 'Error al cargar los exámenes del docente',
-                    confirmButtonColor: '#7c3aed'
-                });
-                setExamenes([]);
-            }
-        } catch (error) {
-            console.error("Error al cargar exámenes del docente:", error);
-            const mensajeError = error.response 
-                ? `Error ${error.response.status}: ${error.response.data?.message || 'Error desconocido'}`
-                : 'No se pudo conectar con el servidor';
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de conexión',
-                text: mensajeError,
-                confirmButtonColor: '#7c3aed'
-            });
-            setExamenes([]);
-        } finally {
-            setIsLoadingExamenes(false);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user || !user.idUsuario) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de autenticación',
-                text: 'No se pudo obtener el ID del docente.',
-                confirmButtonColor: '#7c3aed'
-            });
-            setIsLoading(false);
-            return;
-        }
-        
-        const examenData = {
-            idDocente: user.idUsuario, // Obtener del usuario autenticado
-            idTema: parseInt(formData.idTema), // Asegúrate de que el campo idTema exista en tu formulario y estado formData
-            nombre: formData.nombre,
-            descripcion: formData.descripcion,
-            fechaInicio: formData.fechaInicio, // Asegúrate de que el formato sea ISO 8601 o compatible con el backend
-            fechaFin: formData.fechaFin,       // Asegúrate de que el formato sea ISO 8601 o compatible con el backend
-            tiempoLimite: parseInt(formData.tiempoLimite), // Convertir a número
-            pesoCurso: parseFloat(formData.pesoCurso),     // Convertir a número (si es decimal)
-            umbralAprobacion: parseInt(formData.umbralAprobacion), // Convertir a número
-            cantidadPreguntasTotal: parseInt(formData.cantidadPreguntasTotal), // Convertir a número
-            cantidadPreguntasPresentar: parseInt(formData.cantidadPreguntasPresentar), // Convertir a número
-            idCategoria: parseInt(formData.idCategoria), // Asegúrate de que el campo idCategoria exista
-            intentosPermitidos: parseInt(formData.intentosPermitidos), // Convertir a número
-            mostrarResultados: formData.mostrarResultados === '1', // Convertir a booleano si el backend espera boolean
-            permitirRetroalimentacion: formData.permitirRetroalimentacion === '1' // Convertir a booleano
-        };
-
-        console.log("Datos a enviar para crear examen:", examenData); // Log para depuración
-
-        try {
-            const response = await api.post("/examen/crear-examen/", examenData); // Endpoint de creación
-
-            if (response.data.codigoResultado === 1) { // Suponiendo que 1 es COD_EXITO
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: 'Examen creado correctamente.',
-                    confirmButtonColor: '#7c3aed'
-                });
-                // Opcional: Redirigir o actualizar la lista de exámenes
-                // navigate("/home-profe"); 
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.data.mensajeResultado || 'Error desconocido al crear el examen.',
-                    confirmButtonColor: '#7c3aed'
-                });
-            }
-
-        } catch (error) {
-            console.error("Error al crear examen:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de conexión',
-                text: 'No se pudo conectar con el servidor para crear el examen.',
                 confirmButtonColor: '#7c3aed'
             });
         } finally {
@@ -190,31 +75,31 @@ const HomeProfe = () => {
                 </div>
 
                 {/* Tarjetas de Estadísticas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 font-sans">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {[
                         {
                             title: "Total Exámenes",
                             value: estadisticas.totalExamenes,
-                            icon: <BookOpen size={32} className="text-blue-600" />,
-                            color: "bg-blue-500"
+                            icon: <BookOpen className="h-8 w-8 text-indigo-600" />,
+                            color: "from-indigo-500 to-indigo-600"
                         },
                         {
                             title: "Exámenes Activos",
                             value: estadisticas.examenesActivos,
-                            icon: <CheckCircle size={32} className="text-green-600" />,
-                            color: "bg-green-500"
+                            icon: <CheckCircle className="h-8 w-8 text-green-600" />,
+                            color: "from-green-500 to-green-600"
                         },
                         {
                             title: "Total Estudiantes",
                             value: estadisticas.totalEstudiantes,
-                            icon: <Users size={32} className="text-purple-600" />,
-                            color: "bg-purple-500"
+                            icon: <Users className="h-8 w-8 text-purple-600" />,
+                            color: "from-purple-500 to-purple-600"
                         },
                         {
                             title: "Promedio Notas",
                             value: estadisticas.promedioNotas.toFixed(1),
-                            icon: <BarChart2 size={32} className="text-indigo-600" />,
-                            color: "bg-indigo-500"
+                            icon: <BarChart2 className="h-8 w-8 text-blue-600" />,
+                            color: "from-blue-500 to-blue-600"
                         }
                     ].map((stat, index) => (
                         <motion.div
@@ -222,17 +107,14 @@ const HomeProfe = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            whileHover={{ translateY: -5 }}
-                            className="bg-white rounded-xl p-6 shadow-lg cursor-pointer"
+                            className={`bg-gradient-to-r ${stat.color} text-white rounded-xl p-6 shadow-lg`}
                         >
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-gray-500 text-sm">{stat.title}</p>
-                                    <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+                                    <p className="text-sm font-medium opacity-80">{stat.title}</p>
+                                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
                                 </div>
-                                <div className="p-3 rounded-full bg-gray-100">
-                                    {stat.icon}
-                                </div>
+                                {stat.icon}
                             </div>
                         </motion.div>
                     ))}
@@ -258,22 +140,12 @@ const HomeProfe = () => {
                             link: "/examenes-docente"
                         },
                         {
-                            title: "Gestionar Temas/Cursos",
-                            description: "Organiza tus exámenes por temas y cursos",
-                            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                                    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm0 0L5.84 10.578a12.078 12.078 0 00-.665 6.479 11.952 11.952 0 006.824 2.998 12.083 12.083 0 01-.665-6.479L12 14z" />
-                                </svg>,
-                            link: "/gestionar-temas"
-                        },
-                        {
-                            title: "Ver Reportes",
+                            title: "Estadísticas",
                             description: "Analiza el rendimiento de tus estudiantes",
                             icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14m-6 0a2 2 0 002 2h2a2 2 0 002-2z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>,
-                            link: "/reportes"
+                            link: "/estadisticas"
                         }
                     ].map((action, index) => (
                         <motion.div
@@ -284,7 +156,6 @@ const HomeProfe = () => {
                             className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             <div className="text-4xl mb-4 flex items-center justify-center">
-                                {/* Icono */}
                                 {action.icon}
                             </div>
                             <h3 className="text-xl font-bold text-indigo-800 mb-2 font-heading">
@@ -305,37 +176,6 @@ const HomeProfe = () => {
                         </motion.div>
                     ))}
                 </section>
-
-                {/* Sección de Exámenes del Docente */}
-                <section className="mt-12 font-sans">
-                    <h2 className="text-2xl font-bold text-indigo-800 mb-6 font-heading">Mis Exámenes Creados</h2>
-                    {isLoadingExamenes ? (
-                         <div className="flex justify-center items-center py-8">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                         </div>
-                    ) : examenes.length === 0 ? (
-                        <div className="text-center text-gray-600 py-10">
-                            <p className="text-lg mb-4">Aún no has creado ningún examen.</p>
-                            <Link 
-                                to="/crear-examen"
-                                className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300"
-                            >
-                                Crear mi primer examen
-                            </Link>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {examenes.map(examen => (
-                                <ExamenCard 
-                                    key={examen.idExamen}
-                                    examen={examen}
-                                    onView={() => navigate(`/ver-examen/${examen.idExamen}`)}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </section>
-
             </main>
         </div>
     );

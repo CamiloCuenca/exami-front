@@ -10,6 +10,7 @@ import HomeEstudiante from './pages/HomeEstudiante';
 import HomeProfe from './pages/HomeProfe';
 import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
+import ExamenesEstudiante from './pages/ExamenesEstudiante';
 
 // --- Consideraciones de Diseño Global ---
 // Tipografía:
@@ -45,6 +46,7 @@ function App() {
         <Route path="/home-profe" element={<HomeProfe />} />
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
+        <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
 
       </Routes>
         
