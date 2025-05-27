@@ -42,6 +42,11 @@ const Header = () => {
         }
     };
 
+    // Menú desplegable para docente
+    const [showDropdown, setShowDropdown] = useState(false);
+    const handleDropdown = () => setShowDropdown((prev) => !prev);
+    const closeDropdown = () => setShowDropdown(false);
+
     // Alternar el estado del menú móvil
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -124,25 +129,61 @@ const Header = () => {
                 </nav>
                 
                 {/* Sección de Usuario / Auth Buttons */}
-                <div className="hidden md:flex items-center space-x-4 font-sans">
+                <div className="hidden md:flex items-center space-x-4 font-sans relative">
                     {user ? (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center space-x-3"
-                        >
-                            <span className="text-sm font-semibold text-indigo-800">
-                                {user.tipoUsuario === "Estudiante" ? "👨‍🎓 Estudiante" : "👨‍🏫 Docente"} {user.nombre}
-                            </span>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleAuthClick}
-                                className="transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium"
+                        user.tipoUsuario === "Docente" ? (
+                            <div className="relative">
+                                <button
+                                    onClick={handleDropdown}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-indigo-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                >
+                                    <span>👨‍🏫 {user.nombre}</span>
+                                    <svg className={`w-4 h-4 ml-1 transition-transform ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                {showDropdown && (
+                                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 border border-gray-100 animate-fade-in">
+                                        <Link
+                                            to="/crear-examen"
+                                            className="block px-4 py-2 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-900 transition-colors"
+                                            onClick={closeDropdown}
+                                        >
+                                            ➕ Crear nuevo examen
+                                        </Link>
+                                        <Link
+                                            to="/formulario-pregunta"
+                                            className="block px-4 py-2 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-900 transition-colors"
+                                            onClick={closeDropdown}
+                                        >
+                                            ❓ Crear pregunta
+                                        </Link>
+                                        <button
+                                            onClick={handleAuthClick}
+                                            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors border-t border-gray-100"
+                                        >
+                                            🚪 Cerrar sesión
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="flex items-center space-x-3"
                             >
-                                Cerrar sesión
-                            </motion.button>
-                        </motion.div>
+                                <span className="text-sm font-semibold text-indigo-800">
+                                    👨‍🎓 Estudiante {user.nombre}
+                                </span>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleAuthClick}
+                                    className="transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium"
+                                >
+                                    Cerrar sesión
+                                </motion.button>
+                            </motion.div>
+                        )
                     ) : (
                         <div className="flex items-center space-x-3">
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
