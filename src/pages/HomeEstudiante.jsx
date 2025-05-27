@@ -17,6 +17,9 @@ const HomeEstudiante = () => {
         promedioNotas: 0,
         ultimaNota: 0
     });
+    const [pendientes, setPendientes] = useState([]);
+    const [enProgreso, setEnProgreso] = useState([]);
+    const [expirados, setExpirados] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +29,9 @@ const HomeEstudiante = () => {
             return;
         }
         cargarExamenes();
+        cargarPendientes(user.idUsuario);
+        cargarEnProgreso(user.idUsuario);
+        cargarExpirados(user.idUsuario);
     }, [navigate]);
 
     const cargarExamenes = async () => {
@@ -67,6 +73,37 @@ const HomeEstudiante = () => {
             });
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const cargarPendientes = async (idEstudiante) => {
+        try {
+            const response = await api.get(`/examen/pendientes/${idEstudiante}`);
+            if (response.data.success) {
+                setPendientes(response.data.data || []);
+            }
+        } catch (error) {
+            // Manejo de error opcional
+        }
+    };
+    const cargarEnProgreso = async (idEstudiante) => {
+        try {
+            const response = await api.get(`/examen/en-progreso/${idEstudiante}`);
+            if (response.data.success) {
+                setEnProgreso(response.data.data || []);
+            }
+        } catch (error) {
+            // Manejo de error opcional
+        }
+    };
+    const cargarExpirados = async (idEstudiante) => {
+        try {
+            const response = await api.get(`/examen/expirados/${idEstudiante}`);
+            if (response.data.success) {
+                setExpirados(response.data.data || []);
+            }
+        } catch (error) {
+            // Manejo de error opcional
         }
     };
 
@@ -150,16 +187,14 @@ const HomeEstudiante = () => {
                     <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
                         Exámenes Disponibles
                     </h2>
-                    {examenes.filter(e => e.estado === "Disponible").length > 0 ? (
+                    {pendientes.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {examenes
-                                .filter(e => e.estado === "Disponible")
-                                .map((examen) => (
-                                    <ExamenCardEstudiante
-                                        key={examen.idExamen}
-                                        examen={examen}
-                                    />
-                                ))}
+                            {pendientes.map((examen) => (
+                                <ExamenCardEstudiante
+                                    key={examen.idExamen}
+                                    examen={examen}
+                                />
+                            ))}
                         </div>
                     ) : (
                         <motion.div
@@ -182,16 +217,14 @@ const HomeEstudiante = () => {
                     <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
                         Exámenes en Progreso
                     </h2>
-                    {examenes.filter(e => e.estado === "En Progreso").length > 0 ? (
+                    {enProgreso.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {examenes
-                                .filter(e => e.estado === "En Progreso")
-                                .map((examen) => (
-                                    <ExamenCardEstudiante
-                                        key={examen.idExamen}
-                                        examen={examen}
-                                    />
-                                ))}
+                            {enProgreso.map((examen) => (
+                                <ExamenCardEstudiante
+                                    key={examen.idExamen}
+                                    examen={examen}
+                                />
+                            ))}
                         </div>
                     ) : (
                         <div className="text-center py-8 text-gray-500">
@@ -228,16 +261,14 @@ const HomeEstudiante = () => {
                     <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
                         Exámenes Expirados
                     </h2>
-                    {examenes.filter(e => e.estado === "Expirado").length > 0 ? (
+                    {expirados.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {examenes
-                                .filter(e => e.estado === "Expirado")
-                                .map((examen) => (
-                                    <ExamenCardEstudiante
-                                        key={examen.idExamen}
-                                        examen={examen}
-                                    />
-                                ))}
+                            {expirados.map((examen) => (
+                                <ExamenCardEstudiante
+                                    key={examen.idExamen}
+                                    examen={examen}
+                                />
+                            ))}
                         </div>
                     ) : (
                         <div className="text-center py-8 text-gray-500">
@@ -299,4 +330,4 @@ const HomeEstudiante = () => {
     );
 };
 
-export default HomeEstudiante; 
+export default HomeEstudiante;
