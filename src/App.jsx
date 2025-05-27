@@ -12,6 +12,7 @@ import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
 import FormularioPregunta from './components/FromularioPregunta';
+import ExamenesEstudiante from './pages/ExamenesEstudiante';
 
 // --- Consideraciones de Diseño Global ---
 // Tipografía:
@@ -46,6 +47,7 @@ function App() {
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
         <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
+        <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
       </Routes>
     </Router>
   )
