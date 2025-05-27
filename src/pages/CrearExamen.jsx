@@ -4,9 +4,11 @@ import Navbar from '../components/navbar';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import { useCategoriasTemas } from '../hooks/useCategoriasTemas';
 
 const CrearExamen = () => {
     const navigate = useNavigate();
+    const { categorias, temas, isLoading: isLoadingCategoriasTemas } = useCategoriasTemas();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         nombre: '',
@@ -18,11 +20,11 @@ const CrearExamen = () => {
         umbralAprobacion: 60,
         cantidadPreguntasTotal: 10,
         cantidadPreguntasPresentar: 10,
-        idCategoria: 1,
+        id_categoria: '',
         intentosPermitidos: 1,
         mostrarResultados: true,
         permitirRetroalimentacion: true,
-        idTema: 1
+        id_tema: ''
     });
 
     const handleChange = (e) => {
@@ -49,111 +51,66 @@ const CrearExamen = () => {
             return;
         }
 
-        // --- Validaciones de Frontend ---
+        // Validaciones
         if (!formData.nombre) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El nombre del examen es obligatorio.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'El nombre del examen es obligatorio.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
         }
 
-        if (formData.nombre.length > 100) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El nombre del examen no puede exceder los 100 caracteres.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
+        if (!formData.id_tema) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'Debe seleccionar un tema.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
         }
 
-         if (formData.descripcion && formData.descripcion.length > 500) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La descripción del examen no puede exceder los 500 caracteres.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
+        if (!formData.id_categoria) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'Debe seleccionar una categoría.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
         }
-
-        if (!formData.fechaInicio || !formData.fechaFin) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'Las fechas de inicio y fin son obligatorias.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const fechaInicio = new Date(formData.fechaInicio);
-        const fechaFin = new Date(formData.fechaFin);
-
-        if (fechaInicio >= fechaFin) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La fecha de inicio debe ser anterior a la fecha de fin.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const tiempoLimite = parseInt(formData.tiempoLimite);
-        if (isNaN(tiempoLimite) || tiempoLimite <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El tiempo límite debe ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-         const pesoCurso = parseFloat(formData.pesoCurso);
-        if (isNaN(pesoCurso) || pesoCurso <= 0 || pesoCurso > 100) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El peso del curso debe ser un número entre 1 y 100.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const umbralAprobacion = parseFloat(formData.umbralAprobacion); // Usar parseFloat como en el backend DTO
-        if (isNaN(umbralAprobacion) || umbralAprobacion < 0 || umbralAprobacion > 100) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El umbral de aprobación debe ser un número entre 0 y 100.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const cantidadPreguntasTotal = parseInt(formData.cantidadPreguntasTotal);
-        if (isNaN(cantidadPreguntasTotal) || cantidadPreguntasTotal <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La cantidad total de preguntas debe ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const cantidadPreguntasPresentar = parseInt(formData.cantidadPreguntasPresentar);
-         if (isNaN(cantidadPreguntasPresentar) || cantidadPreguntasPresentar <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La cantidad de preguntas a presentar debe ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        if (cantidadPreguntasPresentar > cantidadPreguntasTotal) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La cantidad de preguntas a presentar no puede ser mayor a la cantidad total.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const intentosPermitidos = parseInt(formData.intentosPermitidos);
-        // Permitimos que sea NaN si el campo no es required y se deja vacío, pero si tiene valor, debe ser > 0
-        if (!isNaN(intentosPermitidos) && intentosPermitidos <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'Los intentos permitidos deben ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        // --- Fin Validaciones de Frontend ---
 
         const examenData = {
             idDocente: user.idUsuario,
-            idTema: parseInt(formData.idTema), // Asegúrate de que el campo idTema exista en tu formulario y estado formData
+            idTema: parseInt(formData.id_tema),
             nombre: formData.nombre,
             descripcion: formData.descripcion,
-            fechaInicio: formData.fechaInicio, // Formato 'YYYY-MM-DDTHH:mm' compatible con LocalDateTime
-            fechaFin: formData.fechaFin,       // Formato 'YYYY-MM-DDTHH:mm' compatible con LocalDateTime
-            tiempoLimite: tiempoLimite, 
-            pesoCurso: pesoCurso,     
-            umbralAprobacion: umbralAprobacion, 
-            cantidadPreguntasTotal: cantidadPreguntasTotal, 
-            cantidadPreguntasPresentar: cantidadPreguntasPresentar,
-            idCategoria: parseInt(formData.idCategoria), // Asegúrate de que el campo idCategoria exista
-            intentosPermitidos: isNaN(intentosPermitidos) ? 1 : intentosPermitidos, // Usar valor por defecto si es NaN (campo vacío)
-            mostrarResultados: formData.mostrarResultados ? 1 : 0, 
-            permitirRetroalimentacion: formData.permitirRetroalimentacion ? 1 : 0 
+            fechaInicio: formData.fechaInicio,
+            fechaFin: formData.fechaFin,
+            tiempoLimite: parseInt(formData.tiempoLimite),
+            pesoCurso: parseFloat(formData.pesoCurso),
+            umbralAprobacion: parseFloat(formData.umbralAprobacion),
+            cantidadPreguntasTotal: parseInt(formData.cantidadPreguntasTotal),
+            cantidadPreguntasPresentar: parseInt(formData.cantidadPreguntasPresentar),
+            idCategoria: parseInt(formData.id_categoria),
+            intentosPermitidos: parseInt(formData.intentosPermitidos),
+            mostrarResultados: formData.mostrarResultados ? 1 : 0,
+            permitirRetroalimentacion: formData.permitirRetroalimentacion ? 1 : 0
         };
 
-        console.log("Datos a enviar para crear examen:", examenData); // Log para depuración
-
         try {
-            // Asegúrate de que esta URL sea la correcta según tu controlador de backend
-            const response = await api.post("/examen/crear-examen", examenData); 
+            const response = await api.post("/examen/crear-examen", examenData);
 
-            console.log("Respuesta del backend al crear examen:", response.data); // Log de la respuesta completa
-
-            if (response.data.data && response.data.data.codigoResultado === 0) { 
-                const idExamen = response.data.data.idExamen;
+            if (response.data.success && response.data.data.codigoResultado === 0) {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
-                    text: 'Examen creado correctamente. Ahora agrega las preguntas.',
+                    text: 'Examen creado correctamente.',
                     confirmButtonColor: '#7c3aed',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
@@ -161,14 +118,9 @@ const CrearExamen = () => {
                     showConfirmButton: false
                 });
                 setTimeout(() => {
-                    if (idExamen) {
-                        navigate(`/formulario-pregunta/${idExamen}`);
-                    } else {
-                        navigate(`/formulario-pregunta/${idExamen}`);
-                    }
+                    navigate('/home-profe');
                 }, 1600);
             } else {
-                // Manejar errores de validación del backend o errores internos del servicio
                 Swal.fire({
                     icon: 'error',
                     title: 'Error al crear examen',
@@ -176,7 +128,6 @@ const CrearExamen = () => {
                     confirmButtonColor: '#7c3aed'
                 });
             }
-
         } catch (error) {
             console.error("Error en la llamada a la API para crear examen:", error);
             const mensajeError = error.response 
@@ -223,7 +174,7 @@ const CrearExamen = () => {
                                     value={formData.nombre}
                                     onChange={handleChange}
                                     required
-                                    maxLength="100" // Validación de longitud
+                                    maxLength="100"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 />
                             </div>
@@ -237,41 +188,51 @@ const CrearExamen = () => {
                                     value={formData.descripcion}
                                     onChange={handleChange}
                                     rows="3"
-                                    maxLength="500" // Validación de longitud
+                                    maxLength="500"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 />
                             </div>
-                            {/* Campo para idTema - Debes añadir un selector o input para esto */}
-                             <div>
+
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Tema
                                 </label>
-                                {/* Aquí podrías tener un select cargado con los temas */}
-                                <input
-                                    type="number"
-                                    name="idTema"
-                                    value={formData.idTema}
+                                <select
+                                    name="id_tema"
+                                    value={formData.id_tema}
                                     onChange={handleChange}
                                     required
+                                    disabled={isLoadingCategoriasTemas}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    placeholder="ID del Tema"
-                                />
+                                >
+                                    <option value="">Seleccione un tema</option>
+                                    {temas.map(tema => (
+                                        <option key={tema.id_tema} value={tema.id_tema}>
+                                            {tema.nombre}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                             {/* Campo para idCategoria - Debes añadir un selector o input para esto */}
-                             <div>
+
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Categoría
                                 </label>
-                                {/* Aquí podrías tener un select cargado con las categorías */}
-                                <input
-                                    type="number"
-                                    name="idCategoria"
-                                    value={formData.idCategoria}
+                                <select
+                                    name="id_categoria"
+                                    value={formData.id_categoria}
                                     onChange={handleChange}
                                     required
+                                    disabled={isLoadingCategoriasTemas}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    placeholder="ID de la Categoría"
-                                />
+                                >
+                                    <option value="">Seleccione una categoría</option>
+                                    {categorias.map(cat => (
+                                        <option key={cat.id_categoria} value={cat.id_categoria}>
+                                            {cat.nombre}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -390,7 +351,7 @@ const CrearExamen = () => {
 
                         {/* Opciones Adicionales */}
                         <div className="space-y-4">
-                             <div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Intentos Permitidos
                                 </label>
@@ -399,7 +360,7 @@ const CrearExamen = () => {
                                     name="intentosPermitidos"
                                     value={formData.intentosPermitidos}
                                     onChange={handleChange}
-                                    min="1" // Añadir validación min en el input
+                                    min="1"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 />
                             </div>
@@ -442,7 +403,7 @@ const CrearExamen = () => {
                             </button>
                             <button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isLoading || isLoadingCategoriasTemas}
                                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                             >
                                 {isLoading ? 'Creando...' : 'Crear Examen'}
