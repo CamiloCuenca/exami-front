@@ -149,13 +149,24 @@ const CrearExamen = () => {
             console.log("Respuesta del backend al crear examen:", response.data); // Log de la respuesta completa
 
             if (response.data.data && response.data.data.codigoResultado === 0) { 
+                const idExamen = response.data.data.idExamen;
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
-                    text: 'Examen creado correctamente.',
-                    confirmButtonColor: '#7c3aed'
+                    text: 'Examen creado correctamente. Ahora agrega las preguntas.',
+                    confirmButtonColor: '#7c3aed',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    timer: 1500,
+                    showConfirmButton: false
                 });
-                navigate("/home-profe"); // Redirigir al dashboard del profesor
+                setTimeout(() => {
+                    if (idExamen) {
+                        navigate(`/formulario-pregunta/${idExamen}`);
+                    } else {
+                        navigate(`/formulario-pregunta/${idExamen}`);
+                    }
+                }, 1600);
             } else {
                 // Manejar errores de validación del backend o errores internos del servicio
                 Swal.fire({
@@ -444,4 +455,4 @@ const CrearExamen = () => {
     );
 };
 
-export default CrearExamen; 
+export default CrearExamen;
