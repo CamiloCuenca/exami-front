@@ -20,6 +20,7 @@ const HomeEstudiante = () => {
     const [pendientes, setPendientes] = useState([]);
     const [enProgreso, setEnProgreso] = useState([]);
     const [expirados, setExpirados] = useState([]);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,6 +33,7 @@ const HomeEstudiante = () => {
         cargarPendientes(user.idUsuario);
         cargarEnProgreso(user.idUsuario);
         cargarExpirados(user.idUsuario);
+
     }, [navigate]);
 
     const cargarExamenes = async () => {
@@ -48,7 +50,7 @@ const HomeEstudiante = () => {
                 setEstadisticas({
                     examenesPendientes: response.data.data.filter(e => e.estado === "Disponible").length,
                     examenesCompletados: response.data.data.filter(e => e.estado === "Finalizado").length,
-                    promedioNotas: 8.5, // Simulado
+                    promedioNotas: 6.5, // Simulado
                     ultimaNota: 9.0 // Simulado
                 });
             } else {
@@ -86,6 +88,7 @@ const HomeEstudiante = () => {
             // Manejo de error opcional
         }
     };
+
     const cargarEnProgreso = async (idEstudiante) => {
         try {
             const response = await api.get(`/examen/en-progreso/${idEstudiante}`);
@@ -125,12 +128,6 @@ const HomeEstudiante = () => {
                     <h1 className="text-3xl font-bold text-indigo-800 font-heading">
                         Mi Panel de Estudiante
                     </h1>
-                    <Link 
-                        to="/examenes"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                        Ver Todos los Exámenes
-                    </Link>
                 </div>
 
                 {/* Tarjetas de Estadísticas */}
@@ -184,9 +181,26 @@ const HomeEstudiante = () => {
 
                 {/* Exámenes Disponibles */}
                 <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-indigo-800 font-heading">
+                            Exámenes Disponibles
+                        </h2>
+                        <Link 
+                            to="/examenes-estudiante"
+                            className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center"
+                        >
+                            Ver todos los exámenes
+                            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </Link>
+                    </div>
+
                     <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
                         Exámenes Disponibles
                     </h2>
+
                     {pendientes.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {pendientes.map((examen) => (
@@ -211,6 +225,8 @@ const HomeEstudiante = () => {
                         </motion.div>
                     )}
                 </section>
+
+
 
                 {/* Exámenes en Progreso */}
                 <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
@@ -276,6 +292,7 @@ const HomeEstudiante = () => {
                         </div>
                     )}
                 </section>
+
 
                 {/* Acciones Rápidas */}
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">

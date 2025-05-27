@@ -92,7 +92,7 @@ const Header = () => {
                                 </motion.li>
                                 <motion.li whileHover={{ scale: 1.05 }}>
                                     <Link 
-                                        to="/examenes" 
+                                        to={user.tipoUsuario === "Estudiante" ? "/examenes-estudiante" : "/examenes-docente"} 
                                         className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                     >
                                         📝<span className="ml-1">Exámenes</span>
@@ -190,7 +190,7 @@ const Header = () => {
                                     </motion.li>
                                     <motion.li whileTap={{ scale: 0.95 }}>
                                         <Link 
-                                            to="/examenes" 
+                                            to={user.tipoUsuario === "Estudiante" ? "/examenes-estudiante" : "/examenes-docente"} 
                                             className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                             onClick={() => setIsOpen(false)}
                                         >
