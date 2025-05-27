@@ -187,7 +187,7 @@ const CrearExamen = () => {
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
             
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 py-8 mt-10">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

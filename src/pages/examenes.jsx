@@ -60,7 +60,7 @@ const Examenes = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 py-8 mt-10">
                 <h1 className="text-3xl font-bold text-indigo-800 mb-8 text-center">
                     Mis Exámenes
                 </h1>

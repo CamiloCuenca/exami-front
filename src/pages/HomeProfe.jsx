@@ -175,7 +175,7 @@ const HomeProfe = () => {
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 font-sans">
             <Navbar />
             
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 py-8 mt-10">
                 {/* Encabezado */}
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-indigo-800 font-heading">

@@ -121,7 +121,7 @@ const HomeEstudiante = () => {
             
             <main className="container mx-auto px-4 py-8 font-sans">
                 {/* Encabezado */}
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-center mb-8 mt-10">
                     <h1 className="text-3xl font-bold text-indigo-800 font-heading">
                         Mi Panel de Estudiante
                     </h1>

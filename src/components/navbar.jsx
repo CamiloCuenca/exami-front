@@ -18,15 +18,15 @@ const Header = () => {
                 setIsScrolled(false);
             }
         };
-        
+
         window.addEventListener('scroll', handleScroll);
-        
+
         // Cargar usuario del localStorage
         const userData = localStorage.getItem("user");
         if (userData) {
             setUser(JSON.parse(userData));
         }
-        
+
         // Limpieza del event listener
         return () => {
             window.removeEventListener('scroll', handleScroll);
@@ -59,9 +59,11 @@ const Header = () => {
         >
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 {/* Logo o Nombre de la App */}
-                <Link to="/" className="flex items-center">
-                    {/* Aquí puedes poner tu SVG o un img tag para el logo */}
-                    {/* Ejemplo de placeholder SVG de libro */}
+                <Link
+                    to={user ? (user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe") : "/"}
+                    className="flex items-center"
+                >
+                    {/* SVG y texto */}
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-800 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253" />
                     </svg>
@@ -83,24 +85,24 @@ const Header = () => {
                         {user ? (
                             <>
                                 <motion.li whileHover={{ scale: 1.05 }}>
-                                    <Link 
-                                        to={user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe"} 
+                                    <Link
+                                        to={user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe"}
                                         className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                     >
                                         🏠<span className="ml-1">Inicio</span>
                                     </Link>
                                 </motion.li>
                                 <motion.li whileHover={{ scale: 1.05 }}>
-                                    <Link 
-                                        to="/examenes" 
+                                    <Link
+                                        to="/examenes"
                                         className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                     >
                                         📝<span className="ml-1">Exámenes</span>
                                     </Link>
                                 </motion.li>
                                 <motion.li whileHover={{ scale: 1.05 }}>
-                                    <Link 
-                                        to="/estadisticas" 
+                                    <Link
+                                        to="/estadisticas"
                                         className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                     >
                                         📊<span className="ml-1">Estadísticas</span>
@@ -110,8 +112,8 @@ const Header = () => {
                         ) : (
                             <>
                                 <motion.li whileHover={{ scale: 1.05 }}>
-                                    <Link 
-                                        to="/" 
+                                    <Link
+                                        to="/"
                                         className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                     >
                                         🏠<span className="ml-1">Inicio</span>
@@ -122,7 +124,7 @@ const Header = () => {
                         )}
                     </ul>
                 </nav>
-                
+
                 {/* Sección de Usuario / Auth Buttons */}
                 <div className="hidden md:flex items-center space-x-4 font-sans">
                     {user ? (
@@ -180,8 +182,8 @@ const Header = () => {
                             {user ? (
                                 <>
                                     <motion.li whileTap={{ scale: 0.95 }}>
-                                        <Link 
-                                            to={user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe"} 
+                                        <Link
+                                            to={user.tipoUsuario === "Estudiante" ? "/home-estudiante" : "/home-profe"}
                                             className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                             onClick={() => setIsOpen(false)} // Cerrar menú al hacer clic
                                         >
@@ -189,8 +191,8 @@ const Header = () => {
                                         </Link>
                                     </motion.li>
                                     <motion.li whileTap={{ scale: 0.95 }}>
-                                        <Link 
-                                            to="/examenes" 
+                                        <Link
+                                            to="/examenes"
                                             className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                             onClick={() => setIsOpen(false)}
                                         >
@@ -198,8 +200,8 @@ const Header = () => {
                                         </Link>
                                     </motion.li>
                                     <motion.li whileTap={{ scale: 0.95 }}>
-                                        <Link 
-                                            to="/estadisticas" 
+                                        <Link
+                                            to="/estadisticas"
                                             className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                             onClick={() => setIsOpen(false)}
                                         >
@@ -213,7 +215,7 @@ const Header = () => {
                                         </span>
                                         <motion.button
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={() => { handleAuthClick({preventDefault: () => {}}); setIsOpen(false); }}
+                                            onClick={() => { handleAuthClick({ preventDefault: () => { } }); setIsOpen(false); }}
                                             className="transition-all duration-300 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg px-4 py-1.5 rounded-lg text-sm font-medium"
                                         >
                                             Cerrar sesión
@@ -223,8 +225,8 @@ const Header = () => {
                             ) : (
                                 <>
                                     <motion.li whileTap={{ scale: 0.95 }}>
-                                        <Link 
-                                            to="/" 
+                                        <Link
+                                            to="/"
                                             className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
                                             onClick={() => setIsOpen(false)}
                                         >
