@@ -11,6 +11,7 @@ import HomeProfe from './pages/HomeProfe';
 import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
+import FormularioPregunta from './components/FromularioPregunta';
 
 // --- Consideraciones de Diseño Global ---
 // Tipografía:
@@ -28,15 +29,12 @@ import ExamenesEstudiante from './pages/ExamenesEstudiante';
 // Mantener el espaciado (padding, margin) consistente usando la escala de Tailwind.
 // Aplicar estilos de sombra y borde redondeado de forma uniforme en elementos similares (tarjetas, botones).
 
-
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-     
-     <Router>
+    <Router>
       <Routes>
-        
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/examenes" element={<Examenes />} />
@@ -47,13 +45,9 @@ function App() {
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
         <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
-
+        <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
       </Routes>
-        
-
-     </Router>
-    
-    
+    </Router>
   )
 }
 
