@@ -13,6 +13,7 @@ import ExamenesDocente from './pages/ExamenesDocente';
 import FormularioPregunta from './components/FromularioPregunta';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
 
+
 // --- Consideraciones de Diseño Global ---
 // Tipografía:
 // Se recomienda usar una o dos familias de fuentes consistentes en toda la app.
@@ -44,8 +45,12 @@ function App() {
         <Route path="/home-profe" element={<HomeProfe />} />
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
+
         <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
+
+        <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
+        
       </Routes>
     </Router>
   )

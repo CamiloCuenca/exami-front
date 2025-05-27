@@ -18,6 +18,9 @@ const HomeEstudiante = () => {
         ultimaNota: 0
     });
     const [pendientes, setPendientes] = useState([]);
+    const [enProgreso, setEnProgreso] = useState([]);
+    const [expirados, setExpirados] = useState([]);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,6 +31,9 @@ const HomeEstudiante = () => {
         }
         cargarExamenes();
         cargarPendientes(user.idUsuario);
+        cargarEnProgreso(user.idUsuario);
+        cargarExpirados(user.idUsuario);
+
     }, [navigate]);
 
     const cargarExamenes = async () => {
@@ -77,6 +83,27 @@ const HomeEstudiante = () => {
             const response = await api.get(`/examen/pendientes/${idEstudiante}`);
             if (response.data.success) {
                 setPendientes(response.data.data || []);
+            }
+        } catch (error) {
+            // Manejo de error opcional
+        }
+    };
+
+    const cargarEnProgreso = async (idEstudiante) => {
+        try {
+            const response = await api.get(`/examen/en-progreso/${idEstudiante}`);
+            if (response.data.success) {
+                setEnProgreso(response.data.data || []);
+            }
+        } catch (error) {
+            // Manejo de error opcional
+        }
+    };
+    const cargarExpirados = async (idEstudiante) => {
+        try {
+            const response = await api.get(`/examen/expirados/${idEstudiante}`);
+            if (response.data.success) {
+                setExpirados(response.data.data || []);
             }
         } catch (error) {
             // Manejo de error opcional
@@ -154,6 +181,7 @@ const HomeEstudiante = () => {
 
                 {/* Exámenes Disponibles */}
                 <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-indigo-800 font-heading">
                             Exámenes Disponibles
@@ -168,6 +196,11 @@ const HomeEstudiante = () => {
                             </svg>
                         </Link>
                     </div>
+
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes Disponibles
+                    </h2>
+
                     {pendientes.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {pendientes.map((examen) => (
@@ -192,6 +225,74 @@ const HomeEstudiante = () => {
                         </motion.div>
                     )}
                 </section>
+
+
+
+                {/* Exámenes en Progreso */}
+                <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes en Progreso
+                    </h2>
+                    {enProgreso.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {enProgreso.map((examen) => (
+                                <ExamenCardEstudiante
+                                    key={examen.idExamen}
+                                    examen={examen}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes en progreso.
+                        </div>
+                    )}
+                </section>
+
+                {/* Exámenes Completados */}
+                <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes Completados
+                    </h2>
+                    {examenes.filter(e => e.estado === "Completado").length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {examenes
+                                .filter(e => e.estado === "Completado")
+                                .map((examen) => (
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
+                                        examen={examen}
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes completados.
+                        </div>
+                    )}
+                </section>
+
+                {/* Exámenes Expirados */}
+                <section className="bg-white rounded-xl shadow-lg p-6 mb-8 font-sans">
+                    <h2 className="text-xl font-bold text-indigo-800 mb-6 font-heading">
+                        Exámenes Expirados
+                    </h2>
+                    {expirados.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {expirados.map((examen) => (
+                                <ExamenCardEstudiante
+                                    key={examen.idExamen}
+                                    examen={examen}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes expirados.
+                        </div>
+                    )}
+                </section>
+
 
                 {/* Acciones Rápidas */}
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
