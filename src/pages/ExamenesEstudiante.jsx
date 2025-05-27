@@ -8,11 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle, AlertCircle } from 'react-feather';
 
 const ExamenesEstudiante = () => {
-    const [examenes, setExamenes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [pendientes, setPendientes] = useState([]);
     const [enProgreso, setEnProgreso] = useState([]);
     const [expirados, setExpirados] = useState([]);
+    const [examenes, setExamenes] = useState([]);
     const [activeTab, setActiveTab] = useState('disponibles');
     const navigate = useNavigate();
 
@@ -23,9 +23,6 @@ const ExamenesEstudiante = () => {
             return;
         }
         cargarExamenes();
-        cargarPendientes(user.idUsuario);
-        cargarEnProgreso(user.idUsuario);
-        cargarExpirados(user.idUsuario);
     }, [navigate]);
 
     const cargarExamenes = async () => {
@@ -35,23 +32,26 @@ const ExamenesEstudiante = () => {
                 throw new Error("No se pudo obtener el ID del estudiante");
             }
 
-            const response = await api.get(`/examen/mis-examenes/${user.idUsuario}`);
-            
-            if (response.data.success) {
-                setExamenes(response.data.data || []);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.data.message || 'Error al cargar los exámenes',
-                    confirmButtonColor: '#7c3aed'
-                });
+            // Solo una llamada a la API
+            const response = await api.get(`/examen/estudiante-ui/${user.idUsuario}`);
+
+            if (!response.data.success) {
+                throw new Error(response.data.message || "Error al cargar los exámenes");
             }
+
+            const examenes = response.data.data || [];
+
+            // Filtrar por estadoUI
+            setPendientes(examenes.filter(e => e.estadoUI === "Disponible"));
+            setEnProgreso(examenes.filter(e => e.estadoUI === "En Progreso"));
+            setExpirados(examenes.filter(e => e.estadoUI === "Expirado"));
+            setExamenes(examenes.filter(e => e.estadoUI === "Completado"));
+
         } catch (error) {
             console.error("Error al cargar exámenes:", error);
-            const mensajeError = error.response 
-                ? `Error ${error.response.status}: ${error.response.data?.message || 'Error desconocido'}`
-                : 'No se pudo conectar con el servidor';
+            const mensajeError = error.response?.data?.message || 
+                error.message || 
+                'No se pudo conectar con el servidor';
             
             Swal.fire({
                 icon: 'error',
@@ -61,39 +61,6 @@ const ExamenesEstudiante = () => {
             });
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const cargarPendientes = async (idEstudiante) => {
-        try {
-            const response = await api.get(`/examen/pendientes/${idEstudiante}`);
-            if (response.data.success) {
-                setPendientes(response.data.data || []);
-            }
-        } catch (error) {
-            // Manejo de error opcional
-        }
-    };
-
-    const cargarEnProgreso = async (idEstudiante) => {
-        try {
-            const response = await api.get(`/examen/en-progreso/${idEstudiante}`);
-            if (response.data.success) {
-                setEnProgreso(response.data.data || []);
-            }
-        } catch (error) {
-            // Manejo de error opcional
-        }
-    };
-
-    const cargarExpirados = async (idEstudiante) => {
-        try {
-            const response = await api.get(`/examen/expirados/${idEstudiante}`);
-            if (response.data.success) {
-                setExpirados(response.data.data || []);
-            }
-        } catch (error) {
-            // Manejo de error opcional
         }
     };
 
@@ -118,7 +85,7 @@ const ExamenesEstudiante = () => {
             id: 'completados',
             label: 'Completados',
             icon: <CheckCircle size={20} />,
-            count: examenes.filter(e => e.estado === "Completado").length,
+            count: examenes.length,
             color: 'text-purple-600',
             bgColor: 'bg-purple-100'
         },
@@ -140,7 +107,23 @@ const ExamenesEstudiante = () => {
                         {pendientes.map((examen) => (
                             <ExamenCardEstudiante
                                 key={examen.idExamen}
-                                examen={examen}
+                                examen={{
+                                    ...examen,
+                                    estado: examen.estadoUI,
+                                    nombre: examen.nombreExamen || examen.nombre,
+                                    fechaInicio: examen.fechaInicioExamenFormateada,
+                                    fechaFin: examen.fechaFinExamenFormateada,
+                                    nombreCurso: examen.nombreCurso,
+                                    nombreTema: examen.nombreTema,
+                                    descripcion: examen.descripcion,
+                                    cantidadPreguntasTotal: examen.cantidadPreguntasTotal,
+                                    cantidadPreguntasPresentar: examen.cantidadPreguntasPresentar,
+                                    intentosPermitidos: examen.intentosPermitidos,
+                                    pesoCurso: examen.pesoCurso,
+                                    mostrarResultados: examen.mostrarResultados,
+                                    permitirRetroalimentacion: examen.permitirRetroalimentacion,
+                                    tiempoLimite: examen.tiempoLimite
+                                }}
                             />
                         ))}
                     </div>
@@ -164,7 +147,23 @@ const ExamenesEstudiante = () => {
                         {enProgreso.map((examen) => (
                             <ExamenCardEstudiante
                                 key={examen.idExamen}
-                                examen={examen}
+                                examen={{
+                                    ...examen,
+                                    estado: examen.estadoUI,
+                                    nombre: examen.nombreExamen || examen.nombre,
+                                    fechaInicio: examen.fechaInicioExamenFormateada,
+                                    fechaFin: examen.fechaFinExamenFormateada,
+                                    nombreCurso: examen.nombreCurso,
+                                    nombreTema: examen.nombreTema,
+                                    descripcion: examen.descripcion,
+                                    cantidadPreguntasTotal: examen.cantidadPreguntasTotal,
+                                    cantidadPreguntasPresentar: examen.cantidadPreguntasPresentar,
+                                    intentosPermitidos: examen.intentosPermitidos,
+                                    pesoCurso: examen.pesoCurso,
+                                    mostrarResultados: examen.mostrarResultados,
+                                    permitirRetroalimentacion: examen.permitirRetroalimentacion,
+                                    tiempoLimite: examen.tiempoLimite
+                                }}
                             />
                         ))}
                     </div>
@@ -174,16 +173,30 @@ const ExamenesEstudiante = () => {
                     </div>
                 );
             case 'completados':
-                return examenes.filter(e => e.estado === "Completado").length > 0 ? (
+                return examenes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {examenes
-                            .filter(e => e.estado === "Completado")
-                            .map((examen) => (
-                                <ExamenCardEstudiante
-                                    key={examen.idExamen}
-                                    examen={examen}
-                                />
-                            ))}
+                        {examenes.map((examen) => (
+                            <ExamenCardEstudiante
+                                key={examen.idExamen}
+                                examen={{
+                                    ...examen,
+                                    estado: examen.estadoUI,
+                                    nombre: examen.nombreExamen || examen.nombre,
+                                    fechaInicio: examen.fechaInicioExamenFormateada,
+                                    fechaFin: examen.fechaFinExamenFormateada,
+                                    nombreCurso: examen.nombreCurso,
+                                    nombreTema: examen.nombreTema,
+                                    descripcion: examen.descripcion,
+                                    cantidadPreguntasTotal: examen.cantidadPreguntasTotal,
+                                    cantidadPreguntasPresentar: examen.cantidadPreguntasPresentar,
+                                    intentosPermitidos: examen.intentosPermitidos,
+                                    pesoCurso: examen.pesoCurso,
+                                    mostrarResultados: examen.mostrarResultados,
+                                    permitirRetroalimentacion: examen.permitirRetroalimentacion,
+                                    tiempoLimite: examen.tiempoLimite
+                                }}
+                            />
+                        ))}
                     </div>
                 ) : (
                     <div className="text-center py-8 text-gray-500">
@@ -196,7 +209,23 @@ const ExamenesEstudiante = () => {
                         {expirados.map((examen) => (
                             <ExamenCardEstudiante
                                 key={examen.idExamen}
-                                examen={examen}
+                                examen={{
+                                    ...examen,
+                                    estado: examen.estadoUI,
+                                    nombre: examen.nombreExamen || examen.nombre,
+                                    fechaInicio: examen.fechaInicioExamenFormateada,
+                                    fechaFin: examen.fechaFinExamenFormateada,
+                                    nombreCurso: examen.nombreCurso,
+                                    nombreTema: examen.nombreTema,
+                                    descripcion: examen.descripcion,
+                                    cantidadPreguntasTotal: examen.cantidadPreguntasTotal,
+                                    cantidadPreguntasPresentar: examen.cantidadPreguntasPresentar,
+                                    intentosPermitidos: examen.intentosPermitidos,
+                                    pesoCurso: examen.pesoCurso,
+                                    mostrarResultados: examen.mostrarResultados,
+                                    permitirRetroalimentacion: examen.permitirRetroalimentacion,
+                                    tiempoLimite: examen.tiempoLimite
+                                }}
                             />
                         ))}
                     </div>
@@ -230,29 +259,31 @@ const ExamenesEstudiante = () => {
                     </h1>
                 </div>
 
-                {/* Tabs */}
+                {/* Pestañas */}
                 <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-                    <div className="flex space-x-4 border-b border-gray-200">
+                    <div className="flex space-x-4 mb-6 overflow-x-auto">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center space-x-2 px-4 py-2 font-medium rounded-t-lg transition-colors duration-200 ${
+                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
                                     activeTab === tab.id
-                                        ? `${tab.color} border-b-2 border-current`
-                                        : 'text-gray-500 hover:text-gray-700'
+                                        ? `${tab.bgColor} ${tab.color}`
+                                        : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                             >
                                 {tab.icon}
                                 <span>{tab.label}</span>
-                                <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${tab.bgColor} ${tab.color}`}>
+                                <span className={`ml-2 px-2 py-0.5 rounded-full text-sm ${
+                                    activeTab === tab.id ? 'bg-white' : 'bg-gray-100'
+                                }`}>
                                     {tab.count}
                                 </span>
                             </button>
                         ))}
                     </div>
 
-                    {/* Contenido de las tabs */}
+                    {/* Contenido de las pestañas */}
                     <div className="mt-6">
                         {renderExamenes()}
                     </div>
