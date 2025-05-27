@@ -12,6 +12,7 @@ import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
 import FormularioPregunta from './components/FromularioPregunta';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
+import PresentarExamen from './pages/PresentarExamen';
 
 
 // --- Consideraciones de Diseño Global ---
@@ -45,12 +46,10 @@ function App() {
         <Route path="/home-profe" element={<HomeProfe />} />
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
-
         <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
-
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
-        
+        <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
       </Routes>
     </Router>
   )

@@ -1,8 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, BookOpen, Home } from 'react-feather';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import Swal from 'sweetalert2';
 
 const ExamenCardEstudiante = ({ examen }) => {
+    const navigate = useNavigate();
+
     const getEstadoColor = (estado) => {
         switch (estado.toLowerCase()) {
             case 'disponible':
@@ -20,6 +25,20 @@ const ExamenCardEstudiante = ({ examen }) => {
 
     const formatFecha = (fechaString) => {
         return fechaString;
+    };
+
+    const handleComenzarExamen = async () => {
+        try {
+            const user = JSON.parse(localStorage.getItem("user"));
+            const response = await api.post(`/examen/iniciar/${examen.idExamen}/${user.idUsuario}`);
+            if (response.data.success && response.data.data.idPresentacion) {
+                navigate(`/presentar-examen/${response.data.data.idPresentacion}`);
+            } else {
+                Swal.fire('Error', 'No se pudo iniciar el examen', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', error.response?.data?.message || 'No se pudo iniciar el examen', 'error');
+        }
     };
 
     return (
@@ -62,9 +81,9 @@ const ExamenCardEstudiante = ({ examen }) => {
 
                 <button
                     className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-300"
-                    onClick={() => window.location.href = `/examen/${examen.idExamen}`}
+                    onClick={handleComenzarExamen}
                 >
-                    {examen.estado.toLowerCase() === 'disponible' ? 'Comenzar Examen' : 'Ver Detalles'}
+                    Comenzar el examen
                 </button>
             </div>
         </motion.div>
