@@ -10,6 +10,7 @@ import HomeEstudiante from './pages/HomeEstudiante';
 import HomeProfe from './pages/HomeProfe';
 import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
+import FormularioPregunta from './components/FromularioPregunta';
 
 // --- Consideraciones de Diseño Global ---
 // Tipografía:
@@ -45,7 +46,8 @@ function App() {
         <Route path="/home-profe" element={<HomeProfe />} />
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
-
+        <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
+        
       </Routes>
         
 
