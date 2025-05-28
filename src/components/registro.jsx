@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import api from "../services/api";
+import Navbar from '../components/navbar';
 import {
     COD_EXITO,
     COD_EMAIL_YA_EXISTE,
@@ -186,6 +187,7 @@ export default function Registro() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+            <Navbar />
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
