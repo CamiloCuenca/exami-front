@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Navbar from '../components/navbar';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 import { BookOpen, CheckCircle, Users, BarChart2 } from 'react-feather';
 import Swal from 'sweetalert2';
 
@@ -57,15 +58,16 @@ const HomeProfe = () => {
     }
 
     return (
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 font-sans">
             <Navbar />
             
             <main className="container mx-auto px-4 py-8">
                 {/* Encabezado */}
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-indigo-800 font-heading">
-                        Panel de Control del Docente
-                    </h1>
+                <h1 className="text-3xl font-bold text-indigo-800 font-heading"> Panel de Control del Docente</h1>
+                       
+                 
                 </div>
 
                 {/* Tarjetas de Estadísticas */}
@@ -170,8 +172,9 @@ const HomeProfe = () => {
                         </motion.div>
                     ))}
                 </section>
-            </main>
-        </div>
+                </main>
+            </div>
+        </Layout>
     );
 };
 

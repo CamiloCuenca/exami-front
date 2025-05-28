@@ -83,7 +83,7 @@ const Header = () => {
                 </div>
 
                 {/* Links Centrados - Ocultos en móvil por defecto */}
-                <nav className={`md:flex flex-1 justify-center ${isOpen ? 'block absolute top-full left-0 right-0 bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-lg py-4 md:static md:bg-transparent md:shadow-none md:py-0 font-sans' : 'hidden font-sans'}`}>
+                <nav className={`md:flex flex-1 justify-center ${isOpen ? 'block fixed top-16 left-0 right-0 bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-lg py-4 md:static md:bg-transparent md:shadow-none md:py-0 font-sans z-40' : 'hidden font-sans'}`}>
                     <ul className={`flex ${isOpen ? 'flex-col items-center space-y-4' : 'space-x-8'} md:flex-row md:space-y-0`}>
                         {user ? (
                             <>
@@ -156,6 +156,13 @@ const Header = () => {
                                         >
                                             ❓ Crear pregunta
                                         </Link>
+                                        <Link
+                                            to="/banco-preguntas"
+                                            className="block px-4 py-2 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-900 transition-colors"
+                                            onClick={closeDropdown}
+                                        >
+                                            📚 Banco de preguntas
+                                        </Link>
                                         <button
                                             onClick={handleAuthClick}
                                             className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors border-t border-gray-100"
@@ -215,7 +222,7 @@ const Header = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.2 }}
-                        className="md:hidden bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-inner py-4"
+                        className="md:hidden fixed top-16 left-0 right-0 bg-white bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-inner py-4 z-40"
                     >
                         <ul className="flex flex-col items-center space-y-4">
                             {user ? (
@@ -247,6 +254,17 @@ const Header = () => {
                                             📊<span className="ml-1">Estadísticas</span>
                                         </Link>
                                     </motion.li>
+                                    {user.tipoUsuario === "Docente" && (
+                                        <motion.li whileTap={{ scale: 0.95 }}>
+                                            <Link 
+                                                to="/banco-preguntas" 
+                                                className="text-base font-medium text-indigo-800 hover:text-indigo-600 transition-colors flex items-center"
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                📚<span className="ml-1">Banco de preguntas</span>
+                                            </Link>
+                                        </motion.li>
+                                    )}
                                     {/* User Info and Logout in Mobile */}
                                     <li className="pt-4 border-t border-gray-200 w-full text-center">
                                         <span className="text-sm font-semibold text-indigo-800 block mb-2">

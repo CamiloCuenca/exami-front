@@ -31,6 +31,7 @@ export const useNivelesTipos = () => {
         try {
             const response = await tipoPreguntaService.obtenerTiposPregunta();
             if (response.success) {
+                console.log('Tipos de pregunta cargados:', response.data);
                 setTiposPregunta(response.data);
             } else {
                 throw new Error(response.message || 'Error al cargar tipos de pregunta');

@@ -4,6 +4,7 @@ import Navbar from '../components/navbar';
 import ExamenCardEstudiante from '../components/ExamenCardEstudiante';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import Layout from '../components/Layout';
 
 const Examenes = () => {
     const [examenes, setExamenes] = useState([]);
@@ -58,6 +59,7 @@ const Examenes = () => {
     }
 
     return (
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
             <main className="container mx-auto px-4 py-8">
@@ -85,6 +87,7 @@ const Examenes = () => {
                 )}
             </main>
         </div>
+        </Layout>
     );
 };
 
