@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Navbar from '../components/navbar';
 import { 
     LOGIN_EXITOSO, 
     LOGIN_USUARIO_NO_ENCONTRADO, 
@@ -330,6 +331,7 @@ export default function Login() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+            <Navbar />
             <motion.div 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -539,7 +541,7 @@ export default function Login() {
                         href="#"
                         className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors block"
                     >
-                        ¿Olvidaste tu contraseña?
+                        
                     </motion.a>
                     <motion.div whileHover={{ scale: 1.05, x: 3 }}>
                         <a
