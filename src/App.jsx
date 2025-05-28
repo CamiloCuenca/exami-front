@@ -10,7 +10,14 @@ import HomeEstudiante from './pages/HomeEstudiante';
 import HomeProfe from './pages/HomeProfe';
 import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
-import FormularioPregunta from './components/FromularioPregunta';
+import ExamenesEstudiante from './pages/ExamenesEstudiante';
+import PresentarExamen from './pages/PresentarExamen';
+import Estadisticas from './pages/Estadisticas';
+import FormularioPregunta from './pages/FormularioPregunta';
+import BancoPreguntas from './pages/BancoPreguntas';
+
+
+
 
 // --- Consideraciones de Diseño Global ---
 // Tipografía:
@@ -28,15 +35,12 @@ import FormularioPregunta from './components/FromularioPregunta';
 // Mantener el espaciado (padding, margin) consistente usando la escala de Tailwind.
 // Aplicar estilos de sombra y borde redondeado de forma uniforme en elementos similares (tarjetas, botones).
 
-
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-     
-     <Router>
+    <Router>
       <Routes>
-        
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/examenes" element={<Examenes />} />
@@ -46,14 +50,14 @@ function App() {
         <Route path="/home-profe" element={<HomeProfe />} />
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
+        <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
+        <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
-        
+        <Route path="/estadisticas" element={<Estadisticas />} />
+        <Route path="/banco-preguntas" element={<BancoPreguntas />} />
+        {/* Agrega más rutas según sea necesario */}
       </Routes>
-        
-
-     </Router>
-    
-    
+    </Router>
   )
 }
 

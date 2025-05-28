@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import api from "../services/api";
+import Navbar from '../components/navbar';
 import {
     COD_EXITO,
     COD_EMAIL_YA_EXISTE,
@@ -163,11 +164,15 @@ export default function Registro() {
             }
         } catch (error) {
             console.error("Error en registro:", error);
-            
+            // Mostrar mensaje del backend si existe
+            let mensaje = "No se pudo conectar con el servidor. Por favor, verifica tu conexión e intenta nuevamente.";
+            if (error.response && error.response.data && error.response.data.mensajeResultado) {
+                mensaje = error.response.data.mensajeResultado;
+            }
             Swal.fire({
                 icon: "error",
-                title: "Error de conexión",
-                text: "No se pudo conectar con el servidor. Por favor, verifica tu conexión e intenta nuevamente.",
+                title: "Error en el registro",
+                text: mensaje,
                 confirmButtonColor: "#6366f1",
                 background: "#fff"
             });
@@ -182,6 +187,7 @@ export default function Registro() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+            <Navbar />
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -238,6 +244,8 @@ export default function Registro() {
                                 id="nombre"
                                 name="nombre"
                                 required
+                                value={formData.nombre}
+                                onChange={handleChange}
                                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu nombre"
                             />
@@ -260,6 +268,8 @@ export default function Registro() {
                                 id="apellido"
                                 name="apellido"
                                 required
+                                value={formData.apellido}
+                                onChange={handleChange}
                                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu apellido"
                             />
@@ -284,6 +294,8 @@ export default function Registro() {
                                 id="email"
                                 name="email"
                                 required
+                                value={formData.email}
+                                onChange={handleChange}
                                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="ejemplo@correo.com"
                             />
@@ -309,6 +321,8 @@ export default function Registro() {
                                     id="contrasena"
                                     name="contrasena"
                                     required
+                                    value={formData.contrasena}
+                                    onChange={handleChange}
                                     className="w-full pr-10 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                     placeholder="Crea tu contraseña"
                                 />
@@ -342,6 +356,8 @@ export default function Registro() {
                                     id="confirmContrasena"
                                     name="confirmContrasena"
                                     required
+                                    value={formData.confirmContrasena}
+                                    onChange={handleChange}
                                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                     placeholder="Repite tu contraseña"
                                 />
@@ -367,6 +383,8 @@ export default function Registro() {
                                 type="tel"
                                 id="telefono"
                                 name="telefono"
+                                value={formData.telefono}
+                                onChange={handleChange}
                                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Teléfono de contacto"
                             />
@@ -388,6 +406,8 @@ export default function Registro() {
                                 type="text"
                                 id="direccion"
                                 name="direccion"
+                                value={formData.direccion}
+                                onChange={handleChange}
                                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400"
                                 placeholder="Tu dirección"
                             />
@@ -432,4 +452,4 @@ export default function Registro() {
             </motion.div>
         </div>
     );
-} 
+}

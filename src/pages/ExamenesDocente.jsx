@@ -6,6 +6,7 @@ import api from '../services/api';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import ExamenCard from '../components/ExamenCard';
+import Layout from '../components/Layout';
 
 const ExamenesDocente = () => {
     const [examenes, setExamenes] = useState([]);
@@ -74,6 +75,7 @@ const ExamenesDocente = () => {
     }
 
     return (
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 font-sans">
             <Navbar />
             
@@ -83,12 +85,7 @@ const ExamenesDocente = () => {
                     <h1 className="text-3xl font-bold text-indigo-800 font-heading">
                         Mis Exámenes
                     </h1>
-                    <Link 
-                        to="/crear-examen"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                        Crear Nuevo Examen
-                    </Link>
+            
                 </div>
 
                 {/* Lista de Exámenes */}
@@ -115,6 +112,7 @@ const ExamenesDocente = () => {
                 )}
             </main>
         </div>
+        </Layout>
     );
 };
 

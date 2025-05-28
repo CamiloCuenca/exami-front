@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../components/navbar';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import Layout from '../components/Layout';
+import { useCategoriasTemas } from '../hooks/useCategoriasTemas';
+import AsignarPreguntasExamen from '../components/AsignarPreguntasExamen';
 
 const CrearExamen = () => {
     const navigate = useNavigate();
+    const { categorias, temas, isLoading: isLoadingCategoriasTemas } = useCategoriasTemas();
     const [isLoading, setIsLoading] = useState(false);
+    const [user, setUser] = useState(null);
     const [formData, setFormData] = useState({
         nombre: '',
         descripcion: '',
@@ -18,12 +23,29 @@ const CrearExamen = () => {
         umbralAprobacion: 60,
         cantidadPreguntasTotal: 10,
         cantidadPreguntasPresentar: 10,
-        idCategoria: 1,
+        id_categoria: '',
         intentosPermitidos: 1,
         mostrarResultados: true,
         permitirRetroalimentacion: true,
-        idTema: 1
+        id_tema: ''
     });
+    const [pasoActual, setPasoActual] = useState(1);
+    const [idExamenCreado, setIdExamenCreado] = useState(null);
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem("user"));
+        if (!userData || !userData.idUsuario) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de autenticación',
+                text: 'No se pudo obtener la información del usuario.',
+                confirmButtonColor: '#7c3aed'
+            });
+            navigate('/login');
+            return;
+        }
+        setUser(userData);
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -49,126 +71,85 @@ const CrearExamen = () => {
             return;
         }
 
-        // --- Validaciones de Frontend ---
+        // Validaciones
         if (!formData.nombre) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El nombre del examen es obligatorio.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'El nombre del examen es obligatorio.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
         }
 
-        if (formData.nombre.length > 100) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El nombre del examen no puede exceder los 100 caracteres.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
+        if (!formData.id_tema) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'Debe seleccionar un tema.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
         }
 
-         if (formData.descripcion && formData.descripcion.length > 500) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La descripción del examen no puede exceder los 500 caracteres.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
+        if (!formData.id_categoria) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'Debe seleccionar una categoría.',
+                confirmButtonColor: '#7c3aed'
+            });
+            setIsLoading(false);
+            return;
         }
-
-        if (!formData.fechaInicio || !formData.fechaFin) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'Las fechas de inicio y fin son obligatorias.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const fechaInicio = new Date(formData.fechaInicio);
-        const fechaFin = new Date(formData.fechaFin);
-
-        if (fechaInicio >= fechaFin) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La fecha de inicio debe ser anterior a la fecha de fin.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const tiempoLimite = parseInt(formData.tiempoLimite);
-        if (isNaN(tiempoLimite) || tiempoLimite <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El tiempo límite debe ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-         const pesoCurso = parseFloat(formData.pesoCurso);
-        if (isNaN(pesoCurso) || pesoCurso <= 0 || pesoCurso > 100) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El peso del curso debe ser un número entre 1 y 100.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const umbralAprobacion = parseFloat(formData.umbralAprobacion); // Usar parseFloat como en el backend DTO
-        if (isNaN(umbralAprobacion) || umbralAprobacion < 0 || umbralAprobacion > 100) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'El umbral de aprobación debe ser un número entre 0 y 100.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const cantidadPreguntasTotal = parseInt(formData.cantidadPreguntasTotal);
-        if (isNaN(cantidadPreguntasTotal) || cantidadPreguntasTotal <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La cantidad total de preguntas debe ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const cantidadPreguntasPresentar = parseInt(formData.cantidadPreguntasPresentar);
-         if (isNaN(cantidadPreguntasPresentar) || cantidadPreguntasPresentar <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La cantidad de preguntas a presentar debe ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        if (cantidadPreguntasPresentar > cantidadPreguntasTotal) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'La cantidad de preguntas a presentar no puede ser mayor a la cantidad total.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        const intentosPermitidos = parseInt(formData.intentosPermitidos);
-        // Permitimos que sea NaN si el campo no es required y se deja vacío, pero si tiene valor, debe ser > 0
-        if (!isNaN(intentosPermitidos) && intentosPermitidos <= 0) {
-             Swal.fire({ icon: 'error', title: 'Error de validación', text: 'Los intentos permitidos deben ser un número mayor a 0.', confirmButtonColor: '#7c3aed' });
-             setIsLoading(false); return;
-        }
-
-        // --- Fin Validaciones de Frontend ---
 
         const examenData = {
             idDocente: user.idUsuario,
-            idTema: parseInt(formData.idTema), // Asegúrate de que el campo idTema exista en tu formulario y estado formData
+            idTema: parseInt(formData.id_tema),
             nombre: formData.nombre,
             descripcion: formData.descripcion,
-            fechaInicio: formData.fechaInicio, // Formato 'YYYY-MM-DDTHH:mm' compatible con LocalDateTime
-            fechaFin: formData.fechaFin,       // Formato 'YYYY-MM-DDTHH:mm' compatible con LocalDateTime
-            tiempoLimite: tiempoLimite, 
-            pesoCurso: pesoCurso,     
-            umbralAprobacion: umbralAprobacion, 
-            cantidadPreguntasTotal: cantidadPreguntasTotal, 
-            cantidadPreguntasPresentar: cantidadPreguntasPresentar,
-            idCategoria: parseInt(formData.idCategoria), // Asegúrate de que el campo idCategoria exista
-            intentosPermitidos: isNaN(intentosPermitidos) ? 1 : intentosPermitidos, // Usar valor por defecto si es NaN (campo vacío)
-            mostrarResultados: formData.mostrarResultados ? 1 : 0, 
-            permitirRetroalimentacion: formData.permitirRetroalimentacion ? 1 : 0 
+            fechaInicio: formData.fechaInicio,
+            fechaFin: formData.fechaFin,
+            tiempoLimite: parseInt(formData.tiempoLimite),
+            pesoCurso: parseFloat(formData.pesoCurso),
+            umbralAprobacion: parseFloat(formData.umbralAprobacion),
+            cantidadPreguntasTotal: parseInt(formData.cantidadPreguntasTotal),
+            cantidadPreguntasPresentar: parseInt(formData.cantidadPreguntasPresentar),
+            idCategoria: parseInt(formData.id_categoria),
+            intentosPermitidos: parseInt(formData.intentosPermitidos),
+            mostrarResultados: formData.mostrarResultados ? 1 : 0,
+            permitirRetroalimentacion: formData.permitirRetroalimentacion ? 1 : 0
         };
 
-        console.log("Datos a enviar para crear examen:", examenData); // Log para depuración
-
         try {
-            // Asegúrate de que esta URL sea la correcta según tu controlador de backend
-            const response = await api.post("/examen/crear-examen", examenData); 
+            const response = await api.post("/examen/crear-examen", examenData);
+            console.log("Respuesta del backend al crear examen:", response.data);
 
-            console.log("Respuesta del backend al crear examen:", response.data); // Log de la respuesta completa
+            if (response.data.success && response.data.data.codigoResultado === 0) {
+                const idExamen = response.data.data.idExamenCreado;
+                console.log("ID del examen creado:", idExamen);
+                
+                if (!idExamen) {
+                    throw new Error('No se recibió el ID del examen creado');
+                }
 
-            if (response.data.data && response.data.data.codigoResultado === 0) { 
-                const idExamen = response.data.data.idExamen;
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
-                    text: 'Examen creado correctamente. Ahora agrega las preguntas.',
+                    text: 'Examen creado correctamente. Ahora asigne las preguntas.',
                     confirmButtonColor: '#7c3aed',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     timer: 1500,
                     showConfirmButton: false
                 });
-                setTimeout(() => {
-                    if (idExamen) {
-                        navigate(`/formulario-pregunta/${idExamen}`);
-                    } else {
-                        navigate(`/formulario-pregunta/${idExamen}`);
-                    }
-                }, 1600);
+                
+                // Guardamos el ID del examen y avanzamos al paso 2
+                handleExamenCreado(idExamen);
             } else {
-                // Manejar errores de validación del backend o errores internos del servicio
+                console.error("Error en la respuesta del backend:", response.data);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error al crear examen',
@@ -176,7 +157,6 @@ const CrearExamen = () => {
                     confirmButtonColor: '#7c3aed'
                 });
             }
-
         } catch (error) {
             console.error("Error en la llamada a la API para crear examen:", error);
             const mensajeError = error.response 
@@ -194,7 +174,28 @@ const CrearExamen = () => {
         }
     };
 
+    const handleExamenCreado = (idExamen) => {
+        console.log("Manejando examen creado con ID:", idExamen);
+        if (!idExamen) {
+            console.error("Error: ID del examen es null o undefined");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo obtener el ID del examen creado',
+                confirmButtonColor: '#7c3aed'
+            });
+            return;
+        }
+        setIdExamenCreado(idExamen);
+        setPasoActual(2);
+    };
+
+    const handlePreguntasAsignadas = () => {
+        navigate('/examenes-docente');
+    };
+
     return (
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
             
@@ -208,250 +209,299 @@ const CrearExamen = () => {
                         Crear Nuevo Examen
                     </h1>
 
-                    <form onSubmit={handleSubmit} className="space-y-6 font-sans">
-                        {/* Información Básica */}
-                        <div className="space-y-4">
-                            <h2 className="text-xl font-semibold text-indigo-700 font-heading">Información Básica</h2>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Nombre del Examen
-                                </label>
-                                <input
-                                    type="text"
-                                    name="nombre"
-                                    value={formData.nombre}
-                                    onChange={handleChange}
-                                    required
-                                    maxLength="100" // Validación de longitud
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold text-indigo-700 font-heading">
+                            Paso {pasoActual} de 2
+                        </h2>
+                        <div className="mt-2 flex items-center space-x-4">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                pasoActual >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
+                            }`}>
+                                1
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Descripción
-                                </label>
-                                <textarea
-                                    name="descripcion"
-                                    value={formData.descripcion}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    maxLength="500" // Validación de longitud
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
+                            <div className="flex-1 h-1 bg-gray-200">
+                                <div className={`h-full ${
+                                    pasoActual >= 2 ? 'bg-indigo-600' : 'bg-gray-200'
+                                }`} style={{ width: pasoActual >= 2 ? '100%' : '0%' }}></div>
                             </div>
-                            {/* Campo para idTema - Debes añadir un selector o input para esto */}
-                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tema
-                                </label>
-                                {/* Aquí podrías tener un select cargado con los temas */}
-                                <input
-                                    type="number"
-                                    name="idTema"
-                                    value={formData.idTema}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    placeholder="ID del Tema"
-                                />
-                            </div>
-                             {/* Campo para idCategoria - Debes añadir un selector o input para esto */}
-                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Categoría
-                                </label>
-                                {/* Aquí podrías tener un select cargado con las categorías */}
-                                <input
-                                    type="number"
-                                    name="idCategoria"
-                                    value={formData.idCategoria}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    placeholder="ID de la Categoría"
-                                />
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                pasoActual >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
+                            }`}>
+                                2
                             </div>
                         </div>
+                    </div>
 
-                        {/* Fechas y Tiempo */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Fecha de Inicio
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    name="fechaInicio"
-                                    value={formData.fechaInicio}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
+                    {pasoActual === 1 ? (
+                        <form onSubmit={handleSubmit} className="space-y-6 font-sans">
+                            {/* Información Básica */}
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-semibold text-indigo-700 font-heading">Información Básica</h2>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Nombre del Examen
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="nombre"
+                                        value={formData.nombre}
+                                        onChange={handleChange}
+                                        required
+                                        maxLength="100"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Descripción
+                                    </label>
+                                    <textarea
+                                        name="descripcion"
+                                        value={formData.descripcion}
+                                        onChange={handleChange}
+                                        rows="3"
+                                        maxLength="500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Tema
+                                    </label>
+                                    <select
+                                        name="id_tema"
+                                        value={formData.id_tema}
+                                        onChange={handleChange}
+                                        required
+                                        disabled={isLoadingCategoriasTemas}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    >
+                                        <option value="">Seleccione un tema</option>
+                                        {temas.map(tema => (
+                                            <option key={tema.id_tema} value={tema.id_tema}>
+                                                {tema.nombre}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Categoría
+                                    </label>
+                                    <select
+                                        name="id_categoria"
+                                        value={formData.id_categoria}
+                                        onChange={handleChange}
+                                        required
+                                        disabled={isLoadingCategoriasTemas}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    >
+                                        <option value="">Seleccione una categoría</option>
+                                        {categorias.map(cat => (
+                                            <option key={cat.id_categoria} value={cat.id_categoria}>
+                                                {cat.nombre}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Fecha de Fin
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    name="fechaFin"
-                                    value={formData.fechaFin}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
+                            {/* Fechas y Tiempo */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fecha de Inicio
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="fechaInicio"
+                                        value={formData.fechaInicio}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fecha de Fin
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="fechaFin"
+                                        value={formData.fechaFin}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Tiempo Límite (minutos)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="tiempoLimite"
+                                        value={formData.tiempoLimite}
+                                        onChange={handleChange}
+                                        required
+                                        min="1"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tiempo Límite (minutos)
-                                </label>
-                                <input
-                                    type="number"
-                                    name="tiempoLimite"
-                                    value={formData.tiempoLimite}
-                                    onChange={handleChange}
-                                    required
-                                    min="1"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
+                            {/* Configuración del Examen */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Peso en el Curso (%)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="pesoCurso"
+                                        value={formData.pesoCurso}
+                                        onChange={handleChange}
+                                        required
+                                        min="0"
+                                        max="100"
+                                        step="0.1"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Umbral de Aprobación (%)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="umbralAprobacion"
+                                        value={formData.umbralAprobacion}
+                                        onChange={handleChange}
+                                        required
+                                        min="0"
+                                        max="100"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Total de Preguntas
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="cantidadPreguntasTotal"
+                                        value={formData.cantidadPreguntasTotal}
+                                        onChange={handleChange}
+                                        required
+                                        min="1"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Preguntas a Presentar
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="cantidadPreguntasPresentar"
+                                        value={formData.cantidadPreguntasPresentar}
+                                        onChange={handleChange}
+                                        required
+                                        min="1"
+                                        max={formData.cantidadPreguntasTotal}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
                             </div>
+
+                            {/* Opciones Adicionales */}
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Intentos Permitidos
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="intentosPermitidos"
+                                        value={formData.intentosPermitidos}
+                                        onChange={handleChange}
+                                        min="1"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                <div className="flex items-center space-x-4">
+                                    <input
+                                        type="checkbox"
+                                        name="mostrarResultados"
+                                        checked={formData.mostrarResultados}
+                                        onChange={handleChange}
+                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                    />
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Mostrar resultados después del examen
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center space-x-4">
+                                    <input
+                                        type="checkbox"
+                                        name="permitirRetroalimentacion"
+                                        checked={formData.permitirRetroalimentacion}
+                                        onChange={handleChange}
+                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                    />
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Permitir retroalimentación
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Botones */}
+                            <div className="flex justify-end space-x-4 pt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/home-profe")}
+                                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || isLoadingCategoriasTemas}
+                                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                                >
+                                    {isLoading ? 'Creando...' : 'Crear Examen'}
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="bg-white rounded-xl shadow-lg p-6">
+                            {user && (
+                                <AsignarPreguntasExamen
+                                    idExamen={idExamenCreado}
+                                    idDocente={user.idUsuario}
+                                    onPreguntasAsignadas={handlePreguntasAsignadas}
+                                    umbralAprobacion={Number(formData.umbralAprobacion)}
+                                    cantidadPreguntasTotal={Number(formData.cantidadPreguntasTotal)}
+                                    cantidadPreguntasPresentar={Number(formData.cantidadPreguntasPresentar)}
+                                />
+                            )}
                         </div>
-
-                        {/* Configuración del Examen */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Peso en el Curso (%)
-                                </label>
-                                <input
-                                    type="number"
-                                    name="pesoCurso"
-                                    value={formData.pesoCurso}
-                                    onChange={handleChange}
-                                    required
-                                    min="0"
-                                    max="100"
-                                    step="0.1"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Umbral de Aprobación (%)
-                                </label>
-                                <input
-                                    type="number"
-                                    name="umbralAprobacion"
-                                    value={formData.umbralAprobacion}
-                                    onChange={handleChange}
-                                    required
-                                    min="0"
-                                    max="100"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Total de Preguntas
-                                </label>
-                                <input
-                                    type="number"
-                                    name="cantidadPreguntasTotal"
-                                    value={formData.cantidadPreguntasTotal}
-                                    onChange={handleChange}
-                                    required
-                                    min="1"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Preguntas a Presentar
-                                </label>
-                                <input
-                                    type="number"
-                                    name="cantidadPreguntasPresentar"
-                                    value={formData.cantidadPreguntasPresentar}
-                                    onChange={handleChange}
-                                    required
-                                    min="1"
-                                    max={formData.cantidadPreguntasTotal}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Opciones Adicionales */}
-                        <div className="space-y-4">
-                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Intentos Permitidos
-                                </label>
-                                <input
-                                    type="number"
-                                    name="intentosPermitidos"
-                                    value={formData.intentosPermitidos}
-                                    onChange={handleChange}
-                                    min="1" // Añadir validación min en el input
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                            </div>
-
-                            <div className="flex items-center space-x-4">
-                                <input
-                                    type="checkbox"
-                                    name="mostrarResultados"
-                                    checked={formData.mostrarResultados}
-                                    onChange={handleChange}
-                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                />
-                                <label className="text-sm font-medium text-gray-700">
-                                    Mostrar resultados después del examen
-                                </label>
-                            </div>
-
-                            <div className="flex items-center space-x-4">
-                                <input
-                                    type="checkbox"
-                                    name="permitirRetroalimentacion"
-                                    checked={formData.permitirRetroalimentacion}
-                                    onChange={handleChange}
-                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                />
-                                <label className="text-sm font-medium text-gray-700">
-                                    Permitir retroalimentación
-                                </label>
-                            </div>
-                        </div>
-
-                        {/* Botones */}
-                        <div className="flex justify-end space-x-4 pt-6">
-                            <button
-                                type="button"
-                                onClick={() => navigate("/home-profe")}
-                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                            >
-                                {isLoading ? 'Creando...' : 'Crear Examen'}
-                            </button>
-                        </div>
-                    </form>
+                    )}
                 </motion.div>
             </main>
         </div>
+        </Layout>
     );
 };
 
