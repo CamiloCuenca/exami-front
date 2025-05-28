@@ -14,6 +14,7 @@ import ExamenesEstudiante from './pages/ExamenesEstudiante';
 import PresentarExamen from './pages/PresentarExamen';
 import Estadisticas from './pages/Estadisticas';
 import FormularioPregunta from './pages/FormularioPregunta';
+import Estadisticas from './pages/Estadisticas';
 
 
 
@@ -53,6 +54,9 @@ function App() {
         <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
         <Route path="/estadisticas" element={<Estadisticas />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
+
+        <Route path="/estadisticas" element={<Estadisticas />} />
+        {/* Agrega más rutas según sea necesario */}
       </Routes>
     </Router>
   )

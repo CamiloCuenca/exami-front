@@ -30,7 +30,7 @@ const ExamenesEstudiante = () => {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user || !user.idUsuario) {
                 throw new Error("No se pudo obtener el ID del estudiante");
-            }
+            }   
 
             // Solo una llamada a la API
             const response = await api.get(`/examen/estudiante-ui/${user.idUsuario}`);
@@ -103,10 +103,10 @@ const ExamenesEstudiante = () => {
         switch (activeTab) {
             case 'disponibles':
                 return pendientes.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {pendientes.map((examen) => (
-                            <ExamenCardEstudiante
-                                key={examen.idExamen}
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
                                 examen={{
                                     ...examen,
                                     estado: examen.estadoUI,
@@ -124,10 +124,10 @@ const ExamenesEstudiante = () => {
                                     permitirRetroalimentacion: examen.permitirRetroalimentacion,
                                     tiempoLimite: examen.tiempoLimite
                                 }}
-                            />
-                        ))}
-                    </div>
-                ) : (
+                                    />
+                                ))}
+                        </div>
+                    ) : (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -143,10 +143,10 @@ const ExamenesEstudiante = () => {
                 );
             case 'en-progreso':
                 return enProgreso.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {enProgreso.map((examen) => (
-                            <ExamenCardEstudiante
-                                key={examen.idExamen}
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
                                 examen={{
                                     ...examen,
                                     estado: examen.estadoUI,
@@ -164,20 +164,20 @@ const ExamenesEstudiante = () => {
                                     permitirRetroalimentacion: examen.permitirRetroalimentacion,
                                     tiempoLimite: examen.tiempoLimite
                                 }}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
-                        No tienes exámenes en progreso.
-                    </div>
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes en progreso.
+                        </div>
                 );
             case 'completados':
                 return examenes.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {examenes.map((examen) => (
-                            <ExamenCardEstudiante
-                                key={examen.idExamen}
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
                                 examen={{
                                     ...examen,
                                     estado: examen.estadoUI,
@@ -195,20 +195,20 @@ const ExamenesEstudiante = () => {
                                     permitirRetroalimentacion: examen.permitirRetroalimentacion,
                                     tiempoLimite: examen.tiempoLimite
                                 }}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
-                        No tienes exámenes completados.
-                    </div>
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes completados.
+                        </div>
                 );
             case 'expirados':
                 return expirados.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {expirados.map((examen) => (
-                            <ExamenCardEstudiante
-                                key={examen.idExamen}
+                                    <ExamenCardEstudiante
+                                        key={examen.idExamen}
                                 examen={{
                                     ...examen,
                                     estado: examen.estadoUI,
@@ -226,13 +226,13 @@ const ExamenesEstudiante = () => {
                                     permitirRetroalimentacion: examen.permitirRetroalimentacion,
                                     tiempoLimite: examen.tiempoLimite
                                 }}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
-                        No tienes exámenes expirados.
-                    </div>
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            No tienes exámenes expirados.
+                        </div>
                 );
             default:
                 return null;
