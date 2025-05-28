@@ -13,6 +13,8 @@ import ExamenesDocente from './pages/ExamenesDocente';
 import FormularioPregunta from './components/FromularioPregunta';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
 import PresentarExamen from './pages/PresentarExamen';
+import Estadisticas from './pages/Estadisticas';
+
 
 
 // --- Consideraciones de Diseño Global ---
@@ -50,6 +52,8 @@ function App() {
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
         <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
+        <Route path="/estadisticas" element={<Estadisticas />} />
+        {/* Agrega más rutas según sea necesario */}
       </Routes>
     </Router>
   )
