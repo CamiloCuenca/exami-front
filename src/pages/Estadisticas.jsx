@@ -4,6 +4,7 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import Navbar from "../components/navbar";
 import { motion } from "framer-motion";
+import Layout from '../components/Layout';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -47,6 +48,7 @@ const Estadisticas = () => {
     }, []);
 
     return (
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
             <main className="container mx-auto px-4 py-8">
@@ -147,6 +149,7 @@ const Estadisticas = () => {
                 </motion.div>
             </main>
         </div>
+        </Layout>
     );
 };
 

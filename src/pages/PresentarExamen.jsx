@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import Layout from '../components/Layout';
 
 const PresentarExamen = () => {
     const { idPresentacion } = useParams();
@@ -68,6 +69,7 @@ const PresentarExamen = () => {
     const pregunta = preguntas[preguntaActual];
 
     return (
+        <Layout>
         <div className="max-w-xl mx-auto mt-10 bg-white p-8 rounded shadow">
             <h2 className="text-xl font-bold mb-4">Pregunta {preguntaActual + 1} de {preguntas.length}</h2>
             <p className="mb-4">{pregunta.textoPregunta}</p>
@@ -85,6 +87,7 @@ const PresentarExamen = () => {
             </div>
             {/* Si tienes preguntas abiertas, puedes agregar un input aquí */}
         </div>
+        </Layout>
     );
 };
 

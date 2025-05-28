@@ -6,6 +6,7 @@ import Navbar from '../components/navbar';
 import { motion } from 'framer-motion';
 import { useCategoriasTemas } from '../hooks/useCategoriasTemas';
 import { useNivelesTipos } from '../hooks/useNivelesTipos';
+import Layout from '../components/Layout';
 
 const FormularioPregunta = () => {
     const navigate = useNavigate();
@@ -269,6 +270,7 @@ const FormularioPregunta = () => {
     };
 
     return (
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
             <main className="container mx-auto px-4 py-8">
@@ -413,6 +415,7 @@ const FormularioPregunta = () => {
                 </motion.div>
             </main>
         </div>
+        </Layout>
     );
 };
 

@@ -6,6 +6,7 @@ import api from '../services/api';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle, AlertCircle } from 'react-feather';
+import Layout from '../components/Layout';
 
 const ExamenesEstudiante = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -248,6 +249,7 @@ const ExamenesEstudiante = () => {
     }
 
     return (
+        <Layout>  
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
             
@@ -290,6 +292,7 @@ const ExamenesEstudiante = () => {
                 </div>
             </main>
         </div>
+        </Layout>
     );
 };
 
