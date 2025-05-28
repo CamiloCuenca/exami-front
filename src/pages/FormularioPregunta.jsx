@@ -127,11 +127,11 @@ const FormularioPregunta = () => {
                 data.ordenes = form.ordenes.slice(0, 2);
             }
             const response = await preguntaService.agregarPregunta(data);
-            if (response.success && response.data.codigoResultado === 0) {
+            if (response.success) {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
-                    text: 'Pregunta agregada correctamente',
+                    text: response.message || 'Pregunta agregada correctamente',
                     confirmButtonColor: '#7c3aed',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
@@ -142,7 +142,7 @@ const FormularioPregunta = () => {
                     navigate('/home-profe');
                 }, 1600);
             } else {
-                Swal.fire('Error', response.data?.mensajeResultado || 'No se pudo agregar la pregunta', 'error');
+                Swal.fire('Error', response.message || 'No se pudo agregar la pregunta', 'error');
             }
         } catch (error) {
             Swal.fire('Error', error.response?.data?.message || 'Error de conexión', 'error');
@@ -155,7 +155,7 @@ const FormularioPregunta = () => {
         if (!tipo) return null;
 
         if (tipo.nombre === 'Selección múltiple') {
-            return (
+    return (
                 <div className="space-y-2">
                     <h2 className="text-xl font-semibold text-indigo-700 font-heading">Opciones de Respuesta</h2>
                     {form.textosOpciones.map((op, idx) => (
@@ -386,9 +386,9 @@ const FormularioPregunta = () => {
                                 className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? 'Guardando...' : 'Guardar Pregunta'}
-                            </button>
+                </button>
                         </div>
-                    </form>
+            </form>
                 </motion.div>
             </main>
         </div>
