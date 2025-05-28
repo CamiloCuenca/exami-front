@@ -10,10 +10,11 @@ import HomeEstudiante from './pages/HomeEstudiante';
 import HomeProfe from './pages/HomeProfe';
 import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
-import FormularioPregunta from './components/FromularioPregunta';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
 import PresentarExamen from './pages/PresentarExamen';
 import Estadisticas from './pages/Estadisticas';
+import FormularioPregunta from './pages/FormularioPregunta';
+
 
 
 
@@ -49,11 +50,9 @@ function App() {
         <Route path="/crear-examen" element={<CrearExamen />} />
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
         <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
-        <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
-        <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
         <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
         <Route path="/estadisticas" element={<Estadisticas />} />
-        {/* Agrega más rutas según sea necesario */}
+        <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
       </Routes>
     </Router>
   )
