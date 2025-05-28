@@ -4,11 +4,15 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import { motion } from 'framer-motion';
+import { useCategoriasTemas } from '../hooks/useCategoriasTemas';
+import { useNivelesTipos } from '../hooks/useNivelesTipos';
 
 const FormularioPregunta = () => {
     const navigate = useNavigate();
+    const { temas, isLoading: isLoadingTemas } = useCategoriasTemas();
+    const { nivelesDificultad, tiposPregunta, isLoading } = useNivelesTipos();
     const [form, setForm] = useState({
-        idDocente: '', // Puedes obtenerlo del usuario logueado
+        idDocente: '',
         idTema: '',
         idNivelDificultad: '',
         idTipoPregunta: '',
@@ -22,7 +26,6 @@ const FormularioPregunta = () => {
         ordenes: [1, 2, 3, 4]
     });
 
-    // Manejo de cambios en los campos
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setForm(prev => ({
@@ -31,7 +34,6 @@ const FormularioPregunta = () => {
         }));
     };
 
-    // Manejo de cambios en las opciones
     const handleOpcionChange = (idx, value) => {
         const nuevasOpciones = [...form.textosOpciones];
         nuevasOpciones[idx] = value;
@@ -44,26 +46,101 @@ const FormularioPregunta = () => {
         setForm(prev => ({ ...prev, sonCorrectas: nuevasCorrectas }));
     };
 
+    // Validación según el tipo de pregunta
+    const validarFormulario = () => {
+        const tipo = tiposPregunta.find(t => t.idTipoPregunta === Number(form.idTipoPregunta));
+        if (!tipo) {
+            Swal.fire('Error', 'Debes seleccionar un tipo de pregunta', 'error');
+            return false;
+        }
+
+        // Selección múltiple: al menos una correcta
+        if (tipo.nombre === 'Selección múltiple') {
+            if (!form.sonCorrectas.some(c => c === 1)) {
+                Swal.fire('Error', 'Debes marcar al menos una opción como correcta', 'error');
+                return false;
+            }
+        }
+
+        // Selección única: solo una correcta
+        if (tipo.nombre === 'Selección única') {
+            const correctas = form.sonCorrectas.filter(c => c === 1).length;
+            if (correctas !== 1) {
+                Swal.fire('Error', 'Debes marcar exactamente una opción como correcta', 'error');
+                return false;
+            }
+        }
+
+        // Falso/Verdadero: solo dos opciones, solo una correcta, textos exactos
+        if (tipo.nombre === 'Falso/Verdadero') {
+            if (
+                form.textosOpciones[0].trim().toLowerCase() !== 'verdadero' ||
+                form.textosOpciones[1].trim().toLowerCase() !== 'falso'
+            ) {
+                Swal.fire('Error', 'Las opciones deben ser "Verdadero" y "Falso"', 'error');
+                return false;
+            }
+            const correctas = form.sonCorrectas[0] + form.sonCorrectas[1];
+            if (correctas !== 1) {
+                Swal.fire('Error', 'Debes marcar solo una opción como correcta en Falso/Verdadero', 'error');
+                return false;
+            }
+            if (form.textosOpciones.length !== 4) {
+                Swal.fire('Error', 'Debe haber exactamente dos opciones en Falso/Verdadero', 'error');
+                return false;
+            }
+        }
+
+        // Validar que los arrays tengan la misma longitud
+        if (
+            form.textosOpciones.length !== form.sonCorrectas.length ||
+            form.textosOpciones.length !== form.ordenes.length
+        ) {
+            Swal.fire('Error', 'Las listas de textos, corrección y órdenes deben tener la misma longitud', 'error');
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validarFormulario()) return;
         try {
-            // Aquí puedes obtener el idDocente del usuario logueado
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user || !user.idUsuario) {
                 Swal.fire('Error', 'No se encontró el usuario docente', 'error');
                 return;
             }
-            const data = {
+            let data = {
                 ...form,
                 idDocente: user.idUsuario,
                 textosOpciones: form.textosOpciones,
                 sonCorrectas: form.sonCorrectas,
                 ordenes: form.ordenes
             };
+            // Ajuste para Falso/Verdadero: solo dos opciones
+            const tipo = tiposPregunta.find(t => t.idTipoPregunta === Number(form.idTipoPregunta));
+            if (tipo && tipo.nombre === 'Falso/Verdadero') {
+                data.textosOpciones = form.textosOpciones.slice(0, 2);
+                data.sonCorrectas = form.sonCorrectas.slice(0, 2);
+                data.ordenes = form.ordenes.slice(0, 2);
+            }
             const response = await preguntaService.agregarPregunta(data);
             if (response.success && response.data.codigoResultado === 0) {
-                Swal.fire('¡Éxito!', 'Pregunta agregada correctamente', 'success');
-                navigate('/home-profe');
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'Pregunta agregada correctamente',
+                    confirmButtonColor: '#7c3aed',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                setTimeout(() => {
+                    navigate('/home-profe');
+                }, 1600);
             } else {
                 Swal.fire('Error', response.data?.mensajeResultado || 'No se pudo agregar la pregunta', 'error');
             }
@@ -72,103 +149,248 @@ const FormularioPregunta = () => {
         }
     };
 
+    // Renderizado dinámico de opciones de respuesta
+    const renderOpcionesRespuesta = () => {
+        const tipo = tiposPregunta.find(t => t.idTipoPregunta === Number(form.idTipoPregunta));
+        if (!tipo) return null;
+
+        if (tipo.nombre === 'Selección múltiple') {
+            return (
+                <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-indigo-700 font-heading">Opciones de Respuesta</h2>
+                    {form.textosOpciones.map((op, idx) => (
+                        <div key={idx} className="flex items-center space-x-2 mb-2">
+                            <input
+                                type="text"
+                                value={op}
+                                onChange={e => handleOpcionChange(idx, e.target.value)}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder={`Opción ${idx + 1}`}
+                                required
+                            />
+                            <label className="flex items-center space-x-1">
+                                <input
+                                    type="checkbox"
+                                    checked={!!form.sonCorrectas[idx]}
+                                    onChange={e => handleCorrectaChange(idx, e.target.checked)}
+                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                /> <span>Correcta</span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            );
+        } else if (tipo.nombre === 'Selección única') {
+            return (
+                <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-indigo-700 font-heading">Opciones de Respuesta</h2>
+                    {form.textosOpciones.map((op, idx) => (
+                        <div key={idx} className="flex items-center space-x-2 mb-2">
+                            <input
+                                type="text"
+                                value={op}
+                                onChange={e => handleOpcionChange(idx, e.target.value)}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder={`Opción ${idx + 1}`}
+                                required
+                            />
+                            <label className="flex items-center space-x-1">
+                                <input
+                                    type="radio"
+                                    name="opcionCorrecta"
+                                    checked={form.sonCorrectas[idx] === 1}
+                                    onChange={() => {
+                                        const nuevasCorrectas = [0, 0, 0, 0];
+                                        nuevasCorrectas[idx] = 1;
+                                        setForm(prev => ({ ...prev, sonCorrectas: nuevasCorrectas }));
+                                    }}
+                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                /> <span>Correcta</span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            );
+        } else if (tipo.nombre === 'Falso/Verdadero') {
+            return (
+                <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-indigo-700 font-heading">Respuesta</h2>
+                    <div className="flex space-x-4">
+                        <label>
+                            <input
+                                type="radio"
+                                name="respuestaVF"
+                                checked={form.sonCorrectas[0] === 1}
+                                onChange={() => setForm(prev => ({
+                                    ...prev,
+                                    textosOpciones: ['Verdadero', 'Falso', '', ''],
+                                    sonCorrectas: [1, 0, 0, 0]
+                                }))}
+                            /> Verdadero
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                name="respuestaVF"
+                                checked={form.sonCorrectas[1] === 1}
+                                onChange={() => setForm(prev => ({
+                                    ...prev,
+                                    textosOpciones: ['Verdadero', 'Falso', '', ''],
+                                    sonCorrectas: [0, 1, 0, 0]
+                                }))}
+                            /> Falso
+                        </label>
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100">
             <Navbar />
-            <div className="flex items-center justify-center min-h-[80vh]">
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }}
+            <main className="container mx-auto px-4 py-8">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 pt-12 relative overflow-hidden"
+                    className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8"
                 >
-                    {/* Elemento decorativo superior */}
-                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-500"></div>
-                    {/* Círculos decorativos */}
-                    <motion.div 
-                        animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.6, 0.5] }}
-                        transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-                        className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-indigo-100 opacity-50"
-                    />
-                    <motion.div 
-                        animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.6, 0.5] }}
-                        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-purple-100 opacity-50"
-                    />
-                    <motion.h1 
-                        className="text-2xl font-bold text-center mb-8 text-indigo-800 relative z-10 font-heading"
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.4, delay: 0.2 }}
-                    >
+                    <h1 className="text-3xl font-bold text-indigo-800 mb-8 text-center font-heading">
                         Agregar Pregunta
-                    </motion.h1>
-                    <form onSubmit={handleSubmit} className="space-y-6 relative z-10 font-sans">
-                        <input type="hidden" name="idDocente" value={form.idDocente} />
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Tema</label>
-                            <input type="number" name="idTema" value={form.idTema} onChange={handleChange} className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400" required />
+                    </h1>
+                    <form onSubmit={handleSubmit} className="space-y-6 font-sans">
+                        {/* Información Básica */}
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-semibold text-indigo-700 font-heading">Información Básica</h2>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Tema</label>
+                                <select
+                                    name="idTema"
+                                    value={form.idTema}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={isLoading}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                >
+                                    <option value="">Seleccione un tema</option>
+                                    {temas.map(tema => (
+                                        <option key={tema.id_tema} value={tema.id_tema}>
+                                            {tema.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Nivel de Dificultad
+                                </label>
+                                <select
+                                    name="idNivelDificultad"
+                                    value={form.idNivelDificultad}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                    required
+                                >
+                                    <option value="">Seleccione un nivel</option>
+                                    {nivelesDificultad.map((nivel) => (
+                                        <option key={nivel.idNivelDificultad} value={nivel.idNivelDificultad}>
+                                            {nivel.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de Pregunta
+                                </label>
+                                <select
+                                    name="idTipoPregunta"
+                                    value={form.idTipoPregunta}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                                    required
+                                >
+                                    <option value="">Seleccione un tipo</option>
+                                    {tiposPregunta.map((tipo) => (
+                                        <option key={tipo.idTipoPregunta} value={tipo.idTipoPregunta}>
+                                            {tipo.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Texto de la Pregunta</label>
+                                <textarea 
+                                    name="textoPregunta" 
+                                    value={form.textoPregunta} 
+                                    onChange={handleChange} 
+                                    required 
+                                    rows="3" 
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Nivel de Dificultad</label>
-                            <input type="number" name="idNivelDificultad" value={form.idNivelDificultad} onChange={handleChange} className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400" required />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Tipo de Pregunta</label>
-                            <input type="number" name="idTipoPregunta" value={form.idTipoPregunta} onChange={handleChange} className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400" required />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Texto de la Pregunta</label>
-                            <textarea name="textoPregunta" value={form.textoPregunta} onChange={handleChange} className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400" required />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">¿Es pública?</label>
-                            <input type="checkbox" name="esPublica" checked={!!form.esPublica} onChange={handleChange} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Tiempo Máximo (segundos)</label>
-                            <input type="number" name="tiempoMaximo" value={form.tiempoMaximo} onChange={handleChange} className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Porcentaje</label>
-                            <input type="number" name="porcentaje" value={form.porcentaje} onChange={handleChange} className="w-full pl-3 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 transition-all duration-200 text-gray-800 placeholder-gray-400" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-indigo-800 mb-1">Opciones de Respuesta</label>
-                            {form.textosOpciones.map((op, idx) => (
-                                <div key={idx} className="flex items-center space-x-2 mb-2">
-                                    <input
-                                        type="text"
-                                        value={op}
-                                        onChange={e => handleOpcionChange(idx, e.target.value)}
-                                        className="border rounded-lg p-2 flex-1 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-800 placeholder-gray-400"
-                                        placeholder={`Opción ${idx + 1}`}
-                                        required
+                        {/* Opciones y Configuración */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">¿Es pública?</label>
+                                <div className="flex items-center">
+                                    <input 
+                                        type="checkbox" 
+                                        name="esPublica" 
+                                        checked={!!form.esPublica} 
+                                        onChange={handleChange} 
+                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" 
                                     />
-                                    <label className="flex items-center space-x-1">
-                                        <input
-                                            type="checkbox"
-                                            checked={!!form.sonCorrectas[idx]}
-                                            onChange={e => handleCorrectaChange(idx, e.target.checked)}
-                                        /> <span>Correcta</span>
-                                    </label>
+                                    <span className="ml-2 text-sm text-gray-700">Marcar si la pregunta es pública</span>
                                 </div>
-                            ))}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Tiempo Máximo (segundos)</label>
+                                <input 
+                                    type="number" 
+                                    name="tiempoMaximo" 
+                                    value={form.tiempoMaximo} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Porcentaje</label>
+                                <input 
+                                    type="number" 
+                                    name="porcentaje" 
+                                    value={form.porcentaje} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                />
+                            </div>
                         </div>
-                        <motion.button
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ duration: 0.4, delay: 0.5 }}
-                            whileHover={{ scale: 1.03, boxShadow: "0px 5px 15px rgba(124, 58, 237, 0.4)" }}
-                            whileTap={{ scale: 0.97 }}
-                            type="submit"
-                            className="w-full py-3 rounded-lg font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
-                        >
-                            Guardar Pregunta
-                        </motion.button>
+                        {/* Opciones de Respuesta */}
+                        {renderOpcionesRespuesta()}
+                        {/* Botones */}
+                        <div className="flex justify-end space-x-4 pt-6">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/home-profe")}
+                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? 'Guardando...' : 'Guardar Pregunta'}
+                            </button>
+                        </div>
                     </form>
                 </motion.div>
-            </div>
+            </main>
         </div>
     );
 };
