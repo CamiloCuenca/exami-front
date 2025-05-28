@@ -83,12 +83,7 @@ const ExamenesDocente = () => {
                     <h1 className="text-3xl font-bold text-indigo-800 font-heading">
                         Mis Exámenes
                     </h1>
-                    <Link 
-                        to="/crear-examen"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                        Crear Nuevo Examen
-                    </Link>
+            
                 </div>
 
                 {/* Lista de Exámenes */}
