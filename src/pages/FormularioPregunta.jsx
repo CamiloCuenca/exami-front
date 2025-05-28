@@ -54,9 +54,20 @@ const FormularioPregunta = () => {
             return false;
         }
 
+        // Filtrar opciones no vacías
+        const opcionesNoVacias = form.textosOpciones
+            .map((texto, idx) => ({ texto, correcta: form.sonCorrectas[idx] }))
+            .filter(op => op.texto.trim() !== '');
+
+        if (opcionesNoVacias.length === 0) {
+            Swal.fire('Error', 'Debes agregar al menos una opción de respuesta', 'error');
+            return false;
+        }
+
         // Selección múltiple: al menos una correcta
         if (tipo.nombre === 'Selección múltiple') {
-            if (!form.sonCorrectas.some(c => c === 1)) {
+            const correctas = opcionesNoVacias.filter(op => op.correcta === 1).length;
+            if (correctas === 0) {
                 Swal.fire('Error', 'Debes marcar al menos una opción como correcta', 'error');
                 return false;
             }
@@ -64,7 +75,7 @@ const FormularioPregunta = () => {
 
         // Selección única: solo una correcta
         if (tipo.nombre === 'Selección única') {
-            const correctas = form.sonCorrectas.filter(c => c === 1).length;
+            const correctas = opcionesNoVacias.filter(op => op.correcta === 1).length;
             if (correctas !== 1) {
                 Swal.fire('Error', 'Debes marcar exactamente una opción como correcta', 'error');
                 return false;
@@ -85,19 +96,6 @@ const FormularioPregunta = () => {
                 Swal.fire('Error', 'Debes marcar solo una opción como correcta en Falso/Verdadero', 'error');
                 return false;
             }
-            if (form.textosOpciones.length !== 4) {
-                Swal.fire('Error', 'Debe haber exactamente dos opciones en Falso/Verdadero', 'error');
-                return false;
-            }
-        }
-
-        // Validar que los arrays tengan la misma longitud
-        if (
-            form.textosOpciones.length !== form.sonCorrectas.length ||
-            form.textosOpciones.length !== form.ordenes.length
-        ) {
-            Swal.fire('Error', 'Las listas de textos, corrección y órdenes deben tener la misma longitud', 'error');
-            return false;
         }
 
         return true;
@@ -112,21 +110,43 @@ const FormularioPregunta = () => {
                 Swal.fire('Error', 'No se encontró el usuario docente', 'error');
                 return;
             }
+
+            // Asegurarnos de que el tipo de pregunta sea un número
+            const tipoPreguntaId = Number(form.idTipoPregunta);
+            if (isNaN(tipoPreguntaId)) {
+                Swal.fire('Error', 'Tipo de pregunta inválido', 'error');
+                return;
+            }
+
+            // Obtener el tipo de pregunta seleccionado
+            const tipoSeleccionado = tiposPregunta.find(t => t.idTipoPregunta === tipoPreguntaId);
+            console.log('Tipo de pregunta seleccionado:', tipoSeleccionado);
+
+            // Filtrar opciones vacías
+            const opcionesNoVacias = form.textosOpciones
+                .map((texto, idx) => ({ texto, correcta: form.sonCorrectas[idx], orden: form.ordenes[idx] }))
+                .filter(op => op.texto.trim() !== '');
+
             let data = {
                 ...form,
                 idDocente: user.idUsuario,
-                textosOpciones: form.textosOpciones,
-                sonCorrectas: form.sonCorrectas,
-                ordenes: form.ordenes
+                idTipoPregunta: tipoPreguntaId,
+                textosOpciones: opcionesNoVacias.map(op => op.texto),
+                sonCorrectas: opcionesNoVacias.map(op => op.correcta),
+                ordenes: opcionesNoVacias.map(op => op.orden)
             };
+
             // Ajuste para Falso/Verdadero: solo dos opciones
-            const tipo = tiposPregunta.find(t => t.idTipoPregunta === Number(form.idTipoPregunta));
-            if (tipo && tipo.nombre === 'Falso/Verdadero') {
-                data.textosOpciones = form.textosOpciones.slice(0, 2);
-                data.sonCorrectas = form.sonCorrectas.slice(0, 2);
-                data.ordenes = form.ordenes.slice(0, 2);
+            if (tipoSeleccionado && tipoSeleccionado.nombre === 'Falso/Verdadero') {
+                data.textosOpciones = ['Verdadero', 'Falso'];
+                data.sonCorrectas = [form.sonCorrectas[0], form.sonCorrectas[1]];
+                data.ordenes = [1, 2];
             }
+
+            console.log('Enviando datos al backend:', data);
             const response = await preguntaService.agregarPregunta(data);
+            console.log('Respuesta del backend:', response);
+
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -145,6 +165,7 @@ const FormularioPregunta = () => {
                 Swal.fire('Error', response.message || 'No se pudo agregar la pregunta', 'error');
             }
         } catch (error) {
+            console.error('Error completo:', error);
             Swal.fire('Error', error.response?.data?.message || 'Error de conexión', 'error');
         }
     };
