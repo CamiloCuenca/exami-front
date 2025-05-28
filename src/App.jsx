@@ -14,6 +14,7 @@ import ExamenesEstudiante from './pages/ExamenesEstudiante';
 import PresentarExamen from './pages/PresentarExamen';
 import Estadisticas from './pages/Estadisticas';
 import FormularioPregunta from './pages/FormularioPregunta';
+import BancoPreguntas from './pages/BancoPreguntas';
 
 
 
@@ -53,6 +54,7 @@ function App() {
         <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
         <Route path="/estadisticas" element={<Estadisticas />} />
+        <Route path="/banco-preguntas" element={<BancoPreguntas />} />
         {/* Agrega más rutas según sea necesario */}
       </Routes>
     </Router>
