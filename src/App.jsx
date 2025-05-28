@@ -12,7 +12,9 @@ import CrearExamen from './pages/CrearExamen';
 import ExamenesDocente from './pages/ExamenesDocente';
 import ExamenesEstudiante from './pages/ExamenesEstudiante';
 import PresentarExamen from './pages/PresentarExamen';
+import Estadisticas from './pages/Estadisticas';
 import FormularioPregunta from './pages/FormularioPregunta';
+
 
 
 
@@ -49,8 +51,8 @@ function App() {
         <Route path="/examenes-docente" element={<ExamenesDocente />} />
         <Route path="/examenes-estudiante" element={<ExamenesEstudiante />} />
         <Route path="/presentar-examen/:idPresentacion" element={<PresentarExamen />} />
+        <Route path="/estadisticas" element={<Estadisticas />} />
         <Route path="/formulario-pregunta" element={<FormularioPregunta />} />
-    
       </Routes>
     </Router>
   )
