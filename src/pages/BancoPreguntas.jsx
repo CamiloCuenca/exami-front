@@ -41,6 +41,51 @@ const BancoPreguntas = () => {
         }
     };
 
+    const handleEliminarPregunta = async (idPregunta) => {
+        try {
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#7c3aed',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                const response = await preguntaDisponibleService.eliminarPregunta(idPregunta);
+                
+                if (response.codigoResultado === 1) {
+                    setPreguntas(prevPreguntas => prevPreguntas.filter(p => p.idPregunta !== idPregunta));
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Eliminado!',
+                        text: response.mensajeResultado,
+                        confirmButtonColor: '#7c3aed'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.mensajeResultado || 'No se pudo eliminar la pregunta',
+                        confirmButtonColor: '#7c3aed'
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error al eliminar la pregunta:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo eliminar la pregunta',
+                confirmButtonColor: '#7c3aed'
+            });
+        }
+    };
+
     const getColorByTipo = (tipo) => {
         switch (tipo) {
             case 'Selección múltiple': return 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200';
@@ -112,11 +157,22 @@ const BancoPreguntas = () => {
                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getColorByDificultad(pregunta.nombreNivelDificultad)}`}>
                                     {pregunta.nombreNivelDificultad}
                                 </span>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                    pregunta.esPublica ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                }`}>
-                                    {pregunta.esPublica ? 'Pública' : 'Privada'}
-                                </span>
+                                <div className="flex gap-2">
+                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                        pregunta.esPublica ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                        {pregunta.esPublica ? 'Pública' : 'Privada'}
+                                    </span>
+                                    <button
+                                        onClick={() => handleEliminarPregunta(pregunta.idPregunta)}
+                                        className="p-1 rounded-full hover:bg-red-100 transition-colors"
+                                        title="Eliminar pregunta"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
 
                             <h3 className="text-lg font-semibold mb-4 text-gray-800 line-clamp-2">

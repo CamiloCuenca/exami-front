@@ -14,6 +14,15 @@ const preguntaDisponibleService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    eliminarPregunta: async (idPregunta) => {
+        try {
+            const response = await api.delete(`/pregunta/eliminar/${idPregunta}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 };
 

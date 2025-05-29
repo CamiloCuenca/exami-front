@@ -10,7 +10,7 @@ const statusStyles = {
     "Borrador": "bg-gray-100 text-gray-800"
 };
 
-const ExamenCard = ({ examen }) => {
+const ExamenCard = ({ examen, onView, onDelete }) => {
     if (!examen) {
         return null;
     }
@@ -105,29 +105,25 @@ const ExamenCard = ({ examen }) => {
             </div>
             
             <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-4">
-                {examen.estado === "Disponible" && (
-                    <Link 
-                        to={`/examen/${examen.idExamen}`}
-                        className="text-sm font-medium text-green-600 hover:text-green-800 transition-colors"
-                    >
-                        Ver Detalles
-                    </Link>
-                )}
+                <Link 
+                    to={`/examen/${examen.idExamen}`}
+                    className="text-sm font-medium text-green-600 hover:text-green-800 transition-colors"
+                >
+                    Ver Detalles
+                </Link>
+                <button 
+                    onClick={onDelete}
+                    className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                >
+                    Eliminar
+                </button>
                 {examen.estado !== "Finalizado" && examen.estado !== "Disponible" && (
-                    <>
-                        <Link 
-                            to={`/editar-examen/${examen.idExamen}`}
-                            className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
-                        >
-                            Editar
-                        </Link>
-                        <button 
-                            onClick={() => alert(`Eliminar examen ${examen.idExamen}`)}
-                            className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
-                        >
-                            Eliminar
-                        </button>
-                    </>
+                    <Link 
+                        to={`/editar-examen/${examen.idExamen}`}
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+                    >
+                        Editar
+                    </Link>
                 )}
                 {examen.estado === "Finalizado" && (
                     <Link 
