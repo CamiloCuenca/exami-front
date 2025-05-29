@@ -76,26 +76,26 @@ const HomeProfe = () => {
                         {
                             title: "Total Exámenes",
                             value: estadisticas.totalExamenes,
-                            icon: <BookOpen className="h-8 w-8 text-indigo-600" />,
-                            color: "from-indigo-500 to-indigo-600"
+                            icon: <BookOpen size={32} className="text-indigo-600" />,
+                            color: "bg-indigo-500"
                         },
                         {
                             title: "Exámenes Activos",
                             value: estadisticas.examenesActivos,
-                            icon: <CheckCircle className="h-8 w-8 text-green-600" />,
-                            color: "from-green-500 to-green-600"
+                            icon: <CheckCircle size={32} className="text-green-600" />,
+                            color: "bg-green-500"
                         },
                         {
                             title: "Total Estudiantes",
                             value: estadisticas.totalEstudiantes,
-                            icon: <Users className="h-8 w-8 text-purple-600" />,
-                            color: "from-purple-500 to-purple-600"
+                            icon: <Users size={32} className="text-purple-600" />,
+                            color: "bg-purple-500"
                         },
                         {
                             title: "Promedio Notas",
                             value: estadisticas.promedioNotas.toFixed(1),
-                            icon: <BarChart2 className="h-8 w-8 text-blue-600" />,
-                            color: "from-blue-500 to-blue-600"
+                            icon: <BarChart2 size={32} className="text-blue-600" />,
+                            color: "bg-blue-500"
                         }
                     ].map((stat, index) => (
                         <motion.div
@@ -103,14 +103,17 @@ const HomeProfe = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className={`bg-gradient-to-r ${stat.color} text-white rounded-xl p-6 shadow-lg`}
+                            whileHover={{ translateY: -5 }}
+                            className="bg-white rounded-xl p-6 shadow-lg cursor-pointer"
                         >
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium opacity-80">{stat.title}</p>
-                                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                                    <p className="text-gray-500 text-sm">{stat.title}</p>
+                                    <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
                                 </div>
-                                {stat.icon}
+                                <div className="p-3 rounded-full bg-gray-100">
+                                    {stat.icon}
+                                </div>
                             </div>
                         </motion.div>
                     ))}
@@ -149,20 +152,21 @@ const HomeProfe = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                            whileHover={{ translateY: -5 }}
+                            className="bg-white rounded-xl p-6 shadow-lg cursor-pointer"
                         >
-                            <div className="text-4xl mb-4 flex items-center justify-center">
-                                {action.icon}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-gray-500 text-sm">{action.title}</p>
+                                    <p className="text-gray-600 text-sm mt-1">{action.description}</p>
+                                </div>
+                                <div className="p-3 rounded-full bg-gray-100">
+                                    {action.icon}
+                                </div>
                             </div>
-                            <h3 className="text-xl font-bold text-indigo-800 mb-2 font-heading">
-                                {action.title}
-                            </h3>
-                            <p className="text-gray-600 mb-4">
-                                {action.description}
-                            </p>
                             <Link
                                 to={action.link}
-                                className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center"
+                                className="mt-4 text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center"
                             >
                                 Ir a {action.title}
                                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
